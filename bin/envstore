@@ -1,0 +1,97 @@
+#!/usr/bin/env python
+# envstore - save and restore environment variables
+#
+# Copyright (C) 2008 Maximilian Gass <mxey@cloudconnected.org>
+# Permission to use, copy, modify, and/or distribute this software for any
+# purpose with or without fee is hereby granted, provided that the above
+# copyright notice and this permission notice appear in all copies.
+#
+# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+import cPickle as pickle
+import getopt
+import os
+import sys
+
+def usage():
+    print >> sys.stderr, """envstore - save and restore environment variables
+    
+Usage: 
+    envstore COMMAND [ARG]
+
+Commands:
+    show        List saved variables in human-readable format
+    eval        Generate shell code to set the variables
+    save        Save a variable
+    rm          Delete a variable
+    clear       Clear out the stored variable"""
+    sys.exit(1)
+
+def save_store():
+    store_file = open(store_filename, 'w')
+    pickle.dump(store, store_file, protocol=-1)
+    store_file.close()
+
+def get_key():
+    try:
+        return sys.argv[2]
+    except IndexError:
+        print >> sys.stderr, "Usage: envstore " + command + " VARIABLE"
+        sys.exit(2)
+
+try:
+    command = sys.argv[1]
+except IndexError:
+    usage()
+
+store_filename = "/tmp/envstore-" + str(os.getuid())
+
+try:
+    store_file = open(store_filename)
+    store = pickle.load(store_file)
+    store_file.close()
+except IOError:
+    store = {}
+
+if command == "show":
+    for k, v in store.iteritems():
+        print k + "\t\t" + v
+    print "%i entries" % len(store)
+elif command == "eval":
+    opts, args = getopt.getopt(sys.argv[2:], '-e')
+    opt_export = (('-e', '') in opts)
+    for k, v in store.iteritems():
+        if opt_export:
+            print "export",
+        print k + "=" + v
+elif command == "save":
+    key = get_key()
+
+    try:
+        value = os.environ[key]
+    except KeyError:
+        print >> sys.stderr, key + " does not exist in environment"
+        sys.exit(3)
+
+    store[key] = value
+    save_store()
+elif command == "rm":
+    key = get_key()
+
+    try:
+        del store[key]
+    except KeyError:
+        print >> sys.stderr, key + " does not exist in store"
+        sys.exit(4)
+
+    save_store()
+elif command == "clear":
+    os.remove(store_filename)
+else:
+    usage()
