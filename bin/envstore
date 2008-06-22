@@ -98,5 +98,6 @@ elif command == "rm":
     save_raw()
 elif command == "clear":
     os.remove(store_filename)
+    os.remove(raw_filename)
 else:
     usage()
