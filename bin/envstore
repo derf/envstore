@@ -64,12 +64,8 @@ if command == "show":
         print k + "\t\t" + v
     print "%i entries" % len(store)
 elif command == "eval":
-    opts, args = getopt.getopt(sys.argv[2:], '-e')
-    opt_export = (('-e', '') in opts)
     for k, v in store.iteritems():
-        if opt_export:
-            print "export",
-        print k + "=" + v
+        print "export " + k + "=" + v
 elif command == "save":
     key = get_key()
 
