@@ -45,12 +45,19 @@ def get_key():
         print >> sys.stderr, "Usage: envstore " + command + " VARIABLE"
         sys.exit(2)
 
+def save_raw():
+    raw_file = open(raw_filename, 'w')
+    for k, v in store.iteritems():
+        print >> raw_file, "export " + k + "=" + v
+    raw_file.close()
+
 try:
     command = sys.argv[1]
 except IndexError:
     usage()
 
 store_filename = "/tmp/envstore-" + str(os.getuid())
+raw_filename = "/tmp/envstore-raw-" + str(os.getuid())
 
 try:
     store_file = open(store_filename)
@@ -77,6 +84,7 @@ elif command == "save":
 
     store[key] = value
     save_store()
+    save_raw()
 elif command == "rm":
     key = get_key()
 
@@ -87,6 +95,7 @@ elif command == "rm":
         sys.exit(4)
 
     save_store()
+    save_raw()
 elif command == "clear":
     os.remove(store_filename)
 else:
