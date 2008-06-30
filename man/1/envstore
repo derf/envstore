@@ -1,0 +1,70 @@
+=pod
+
+=head1 NAME
+
+envstore - save and restore environment variables
+
+=head1 SYNOPSIS
+
+B<envstore> I<command> [ I<arguments> ]
+
+=head1 DESCRIPTION
+
+envstore can safe and restore environment variables, thus transferring them
+between different shells
+
+I<command> must be one of
+
+=over
+
+=item B<clear>
+
+Forget all stored variables
+
+=item B<eval>
+
+Produce shell code for evaluation, restoring all saved variables
+
+=item B<save> I<variable>
+
+Save I<variable>
+
+=item B<show>
+
+List saved variables in better readable format
+
+=item B<rm> I<variable>
+
+Remove I<variable> from store
+
+=back
+
+=head1 FILES
+
+=over
+
+=item F</tmp/envstore->I<uid>
+
+Contains the stored variables in a python database (pickle) format
+
+=item F</tmp/envstore-raw->I<uid>
+
+Contains the stored variables as plain text, like the output of 'eval'.
+May be used for inclusion in shell startup files.
+
+=back
+
+=head1 BUGS
+
+The author is insane.
+
+=head1 AUTHOR
+
+Maximilian Gass <mxey@cloudconnected.org>
+
+This manual was written by Daniel Friesel because the original program did not
+have one.
+
+=cut
+
+vim:ft=pod
