@@ -75,13 +75,17 @@ elif command == "eval":
     for k, v in store.iteritems():
         print "export " + k + "=" + v
 elif command == "save":
-    key = get_key()
+    arg = get_key()
 
-    try:
-        value = os.environ[key]
-    except KeyError:
-        print >> sys.stderr, key + " does not exist in environment"
-        sys.exit(3)
+    if "=" in arg:
+        key, value = arg.split('=', 2)
+
+    else:
+        try:
+            value = os.environ[key]
+        except KeyError:
+            print >> sys.stderr, key + " does not exist in environment"
+            sys.exit(3)
 
     store[key] = value
     save_store()
