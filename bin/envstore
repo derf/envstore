@@ -71,9 +71,11 @@ if command == "show":
     for k, v in store.iteritems():
         print k + "\t\t" + v
     print "%i entries" % len(store)
+
 elif command == "eval":
     for k, v in store.iteritems():
         print "export " + k + "=" + v
+
 elif command == "save":
     arg = get_key()
 
@@ -89,6 +91,7 @@ elif command == "save":
 
     store[key] = value
     save_store()
+
 elif command == "rm":
     key = get_key()
 
@@ -99,8 +102,10 @@ elif command == "rm":
         sys.exit(4)
 
     save_store()
+
 elif command == "clear":
     os.remove(store_filename)
     os.remove(raw_filename)
+
 else:
     usage()
