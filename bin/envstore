@@ -83,6 +83,7 @@ elif command == "save":
         key, value = arg.split('=', 2)
 
     else:
+        key = arg
         try:
             value = os.environ[key]
         except KeyError:
