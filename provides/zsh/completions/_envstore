@@ -1,0 +1,31 @@
+#compdef envstore
+## vim:ft=zsh
+## completion for envstore release-3
+## Daniel Friesel <derf@derf.homelinux.org>
+## https://derf.homelinux.org/~derf/dotfiles/zsh/completions/_envstore
+## see also: http://git.cloudconnected.org/?p=envstore.git;a=summary
+
+local arguments_action arguments_save arguments_rm arguments_eval
+
+arguments_action=(
+	'1:action:(clear eval rm save show)'
+)
+arguments_save=(
+	'2:variable:_parameters -g \*-export'
+)
+arguments_rm=(
+	'2:variable:($(envstore eval -e | cut -d " " -f 2 | cut -d "=" -f 1))'
+)
+arguments_eval=(
+	'2::option:(-e)'
+)
+
+if [[ $CURRENT -ge 3 ]] {
+	case ${words[2]} in 
+		eval)  _arguments -s $arguments_eval ;;
+		rm)    _arguments -s $arguments_rm ;;
+		save)  _arguments -s $arguments_save ;;
+	esac
+} else {
+	_arguments -s $arguments_action
+}
