@@ -5,16 +5,20 @@
 ## https://derf.homelinux.org/~derf/dotfiles/completion/_envstore
 ## see also: http://git.cloudconnected.org/?p=envstore.git;a=summary
 
-local arguments_action arguments_save arguments_rm arguments_eval
+local arguments_action arguments_action_nofile
+local arguments_save arguments_rm arguments_eval
 
 arguments_action=(
 	'1:action:(clear eval rm save show)'
 )
+arguments_action_nofile=(
+	'1:action:(save)'
+)
 arguments_save=(
-	'2:variable:_parameters -g \*-export'
+	'2:parameter:_parameters -g \*-export'
 )
 arguments_rm=(
-	'2:variable:($(envstore eval -e | cut -d " " -f 2 | cut -d "=" -f 1))'
+	'2:parameter:($(envstore eval -e | cut -d " " -f 2 | cut -d "=" -f 1))'
 )
 arguments_eval=(
 	'2::option:(-e)'
@@ -26,6 +30,8 @@ if [[ $CURRENT -ge 3 ]] {
 		rm)    _arguments -s $arguments_rm ;;
 		save)  _arguments -s $arguments_save ;;
 	esac
-} else {
+} elif [[ -r /tmp/envstore-$UID ]] {
 	_arguments -s $arguments_action
+} else {
+	_arguments -s $arguments_action_nofile
 }
