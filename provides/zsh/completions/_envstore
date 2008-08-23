@@ -14,8 +14,12 @@ arguments_action=(
 arguments_action_nofile=(
 	'1:action:(save)'
 )
+
+# envstare can't handle arrays, so only complete scalars and integers.
+# Also, don't complete parameters marked 'special', since they're usually
+# relative to the current shell
 arguments_save=(
-	'2:parameter:_parameters -g \*-export'
+	'2:parameter:_parameters -g "(scalar|integer)*export"'
 )
 arguments_rm=(
 	'2:parameter:($(envstore eval -e | cut -d " " -f 2 | cut -d "=" -f 1))'
