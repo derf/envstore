@@ -19,6 +19,7 @@
 import cPickle as pickle
 import getopt
 import os
+import stat
 import sys
 
 def usage():
@@ -57,14 +58,17 @@ try:
 except IndexError:
     usage()
 
-store_filename = os.environ["HOME"] + "/var/tmp/envstore-" + str(os.getuid())
+store_filename = "/tmp/envstore-" + str(os.getuid())
 raw_filename = os.environ["HOME"] + "/var/tmp/envstore-raw-" + str(os.getuid())
 
 try:
+    if os.stat(store_filename).st_uid != os.getuid():
+        print >> sys.stderr, "envstore: Store file does not belong to current user"
+        sys.exit(6)
     store_file = open(store_filename)
     store = pickle.load(store_file)
     store_file.close()
-except IOError:
+except (IOError, OSError):
     store = {}
 
 if command == "show":
