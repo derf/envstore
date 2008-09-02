@@ -5,8 +5,9 @@
 ## https://derf.homelinux.org/~derf/dotfiles/completion/_envstore
 ## see also: http://git.cloudconnected.org/?p=envstore.git;a=summary
 
-local arguments_action arguments_action_nofile
-local arguments_save arguments_rm arguments_eval
+local -a arguments_action arguments_action_nofile
+local -a arguments_save arguments_rm arguments_eval
+local lstate
 
 arguments_action=(
 	'1:action:(clear eval rm save show)'
@@ -19,16 +20,16 @@ arguments_action_nofile=(
 # Also, don't complete parameters marked 'special', since they're usually
 # specific to the current shell
 arguments_save=(
-	'2:parameter:_parameters -g "(scalar|integer)*export"'
+	'2:parameter:->param'
 )
 arguments_rm=(
-	'2:parameter:($(envstore eval -e | cut -d " " -f 2 | cut -d "=" -f 1))'
+	'2:saved parameter:->saved_param'
 )
 arguments_eval=(
 	'2::option:(-e)'
 )
 
-if [[ $CURRENT -ge 3 ]] {
+if (( CURRENT >= 3 )) {
 	case ${words[2]} in 
 		eval)  _arguments -s $arguments_eval ;;
 		rm)    _arguments -s $arguments_rm ;;
@@ -39,3 +40,17 @@ if [[ $CURRENT -ge 3 ]] {
 } else {
 	_arguments -s $arguments_action_nofile
 }
+
+while [[ -n $state ]]; do
+	lstate=$state
+	state=''
+	case $lstate in
+		param)
+			_parameters -g '(scalar|integer)*export'
+		;;
+		saved_param)
+			_wanted parameter expl 'saved parameter' \
+			compadd $(envstore eval -e | cut -d ' ' -f 2 | cut -d '=' -f 1)
+		;;
+	esac
+done
