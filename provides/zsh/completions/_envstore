@@ -7,7 +7,6 @@
 
 local -a arguments_action arguments_action_nofile
 local -a arguments_save arguments_rm arguments_eval
-local lstate
 
 arguments_action=(
 	'1:action:(clear eval rm save show)'
@@ -20,14 +19,19 @@ arguments_action_nofile=(
 # Also, don't complete parameters marked 'special', since they're usually
 # specific to the current shell
 arguments_save=(
-	'2:parameter:->param'
+	'2:parameter:_parameters -g "(scalar|integer)*export"'
 )
 arguments_rm=(
-	'2:saved parameter:->saved_param'
+	'2:saved parameter:_saved_param'
 )
 arguments_eval=(
 	'2::option:(-e)'
 )
+
+function _saved_param () {
+	_wanted parameter expl 'saved parameter' \
+	compadd $(envstore eval -e | cut -d ' ' -f 2 | cut -d '=' -f 1)
+}
 
 if (( CURRENT >= 3 )) {
 	case ${words[2]} in 
@@ -40,17 +44,3 @@ if (( CURRENT >= 3 )) {
 } else {
 	_arguments -s $arguments_action_nofile
 }
-
-while [[ -n $state ]]; do
-	lstate=$state
-	state=''
-	case $lstate in
-		param)
-			_parameters -g '(scalar|integer)*export'
-		;;
-		saved_param)
-			_wanted parameter expl 'saved parameter' \
-			compadd $(envstore eval -e | cut -d ' ' -f 2 | cut -d '=' -f 1)
-		;;
-	esac
-done
