@@ -5,27 +5,18 @@
 ## https://derf.homelinux.org/~derf/dotfiles/completion/_envstore
 ## see also: http://git.cloudconnected.org/?p=envstore.git;a=summary
 
-local -a arguments_action arguments_action_nofile
-local -a arguments_save arguments_rm arguments_eval
+local -a options options_nofile
 
-arguments_action=(
-	'1:action:(clear eval rm save show)'
-)
-arguments_action_nofile=(
-	'1:action:(save)'
+options=(
+	'clear:forget stored parameters'
+	'eval:generate shell code to set parameters'
+	'list:list saved parameters in human-readable format'
+	'rm:delete saved parameter'
+	'save:save parameter'
 )
 
-# envstore can't handle arrays, so only complete scalars and integers.
-# Also, don't complete parameters marked 'special', since they're usually
-# specific to the current shell
-arguments_save=(
-	'2:parameter:_parameters -g "(scalar|integer)*export"'
-)
-arguments_rm=(
-	'2:saved parameter:_saved_param'
-)
-arguments_eval=(
-	'2::option:(-e)'
+options_nofile=(
+	'save:save parameter'
 )
 
 function _saved_param () {
@@ -35,12 +26,12 @@ function _saved_param () {
 
 if (( CURRENT >= 3 )) {
 	case ${words[2]} in 
-		eval)  _arguments -s $arguments_eval ;;
-		rm)    _arguments -s $arguments_rm ;;
-		save)  _arguments -s $arguments_save ;;
+		eval)  _arguments -s '2::option:(-e)' ;;
+		rm)    _arguments -s '2:saved parameter:_saved_param' ;;
+		save)  _arguments -s '2:parameter:_parameters -g "(scalar|integer)*export"' ;;
 	esac
 } elif [[ -r /tmp/envstore-$UID ]] {
-	_arguments -s $arguments_action
+	_describe command options
 } else {
-	_arguments -s $arguments_action_nofile
+	_describe command options_nofile
 }
