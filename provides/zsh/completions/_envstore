@@ -24,14 +24,27 @@ function _saved_param () {
 	compadd $(envstore eval -e | cut -d ' ' -f 2 | cut -d '=' -f 1)
 }
 
-if (( CURRENT >= 3 )) {
+if (( CURRENT == 2 )) {
+	if [[ -r /tmp/envstore-$UID ]] {
+		_describe command options
+	} else {
+		_describe command options_nofile
+	}
+} elif (( CURRENT == 3 )) {
+	
 	case ${words[2]} in 
-		eval)  _arguments -s '2::option:(-e)' ;;
-		rm)    _arguments -s '2:saved parameter:_saved_param' ;;
-		save)  _arguments -s '2:parameter:_parameters -g "(scalar|integer)*export"' ;;
+		eval)
+			_arguments -s '2::option:(-e)'
+		;;
+		rm)
+			_saved_param
+		;;
+		save)
+			_parameters -g '(scalar|integer)*export'
+		;;
+		*)
+			_message 'no more arguments'
 	esac
-} elif [[ -r /tmp/envstore-$UID ]] {
-	_describe command options
 } else {
-	_describe command options_nofile
+	_message 'no more arguments'
 }
