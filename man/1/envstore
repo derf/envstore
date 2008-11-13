@@ -25,9 +25,9 @@ Forget all stored variables
 
 Produce shell code for evaluation, restoring all saved variables
 
-=item B<save> I<variable>
+=item B<save> I<variable>[=I<value>]
 
-Save I<variable>
+Save I<variable> either with it's current shell value or with I<value>
 
 =item B<show>
 
@@ -54,16 +54,9 @@ May be used for inclusion in shell startup files.
 
 =back
 
-=head1 BUGS
-
-The author is insane.
-
 =head1 AUTHOR
 
 Maximilian Gass <mxey@cloudconnected.org>
-
-This manual was written by Daniel Friesel because the original program did not
-have one.
 
 =cut
 
