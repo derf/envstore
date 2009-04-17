@@ -31,8 +31,7 @@ if (( CURRENT == 2 )) {
 		_describe command options_nofile
 	}
 } elif (( CURRENT == 3 )) {
-	
-	case ${words[2]} in 
+	case ${words[2]} in
 		eval)
 			_arguments -s '2::option:(-e)'
 		;;
@@ -45,6 +44,8 @@ if (( CURRENT == 2 )) {
 		*)
 			_message 'no more arguments'
 	esac
+} elif [[ $CURRENT == 4 && ${words[2]} == save ]] {
+	_message 'value'
 } else {
 	_message 'no more arguments'
 }
