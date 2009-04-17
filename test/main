@@ -1,0 +1,98 @@
+#!/usr/bin/env zsh
+setopt err_exit
+typeset envstore=${1-envstore}
+
+trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b\nrm -rf $testdir'" ZERR
+trap "$envstore clear" INT
+
+cat <<- ente
+	Usage: $0 [path to envstore]
+	Note: this script will remove/overwrite your envstore store file.
+	The envstore script needs to be compatible with the original envstore API,
+	that is, it should implement the commends "clear", "rm", "eval",
+	"save var" and "save var value"
+
+ente
+
+echo "# $envstore clear"
+$envstore clear
+
+echo "# $envstore save var"
+export hello=world
+$envstore save hello
+unset hello
+
+echo "# $envstore eval"
+eval $($envstore eval)
+[[ $hello == world ]]
+unset hello
+
+echo "# $envstore rm"
+$envstore rm hello
+eval $($envstore eval)
+[[ -z $hello ]]
+
+echo "# $envstore save var value"
+$envstore save hello world
+
+echo "# $envstore eval"
+eval $($envstore eval)
+[[ $hello == world ]]
+unset hello
+
+echo "# $envstore clear"
+$envstore clear
+eval $($envstore eval)
+[[ -z $hello ]]
+
+echo "# $envstore save + eval (spaces in value), save var"
+export hello='your mom'
+$envstore save hello
+unset hello
+eval $($envstore eval)
+[[ $hello == 'your mom' ]]
+unset hello
+$envstore clear
+
+echo "# $envstore save + eval (spaces in value), save var value"
+$envstore save hello 'your mom'
+eval $($envstore eval)
+[[ $hello == 'your mom' ]]
+unset hello
+
+echo "# $envstore save (overwrite)"
+$envstore save hello world
+eval $($envstore eval)
+[[ $hello == world ]]
+$envstore clear
+
+echo "# $envstore save (' in value)"
+$envstore save hello "the ' dude"
+eval $($envstore eval)
+[[ $hello == "the ' dude" ]]
+unset hello
+
+echo "# $envstore save (UTF-8)"
+export hello='mÿde Rentner… und so'
+$envstore save hello
+unset hello
+eval $($envstore eval)
+[[ $hello == 'mÿde Rentner… und so' ]]
+unset hello
+$envstore clear
+
+print -P '\n%F{green}Test passed%F{default}\n'
+
+echo "## some benchmarks now..."
+TIMEFMT='%*E real, %*U user, %*S system - %P%% CPU - %J'
+
+echo "# adding 5000 vars (this could take a _long_ time)"
+for i in {0..5000}; {
+	(( i % 500 )) || echo "# $((5000-i)) to go"
+	$envstore save $i $i$i$i
+}
+echo
+
+repeat 2 {time $envstore eval > /dev/null}
+repeat 2 {time $envstore rm 99999 > /dev/null}
+repeat 2 {time $envstore clear}
