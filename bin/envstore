@@ -1,116 +1,94 @@
-#!/usr/bin/env python
-# envstore - save and restore environment variables
-#
-# Copyright (C) 2008 Maximilian Gass <mxey@cloudconnected.org>
-# Permission to use, copy, modify, and/or distribute this software for any
-# purpose with or without fee is hereby granted, provided that the above
-# copyright notice and this permission notice appear in all copies.
-#
-# THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-# WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-# MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-# ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-# WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-# ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-# OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
-#
-# Minor modifications by Daniel Friesel <derf@derf.homelinux.org>
+#!/usr/bin/env perl
+## envstore - save and load environment variables
+## Copyright © 2009 by Daniel Friesel <derf@derf.homelinux.org>
+## License: WTFPL <http://sam.zoy.org/wtfpl>
+use strict;
+use warnings;
 
-import cPickle as pickle
-import getopt
-import os
-import stat
-import sys
+my $store_file = "/tmp/.envstore-$>";
+my %store;
+my $action = shift;
+my $arg = shift;
+my ($key, $value);
 
-def usage():
-    print >> sys.stderr, """envstore - save and restore environment variables
-    
-Usage: 
-    envstore COMMAND [ARG]
+sub check_store {
+	my ($mode, $uid);
+	unless (-e $store_file) {
+		return(0);
+	}
+	($mode, $uid) = (stat($store_file))[2,4];
+	$mode &= 0x00077;
+	if ($uid != $<) {
+		print STDERR "envstore: store file not owned by us\n";
+		exit(1);
+	}
+	if ($mode > 0) {
+		print STDERR "envstore: store file writable by group/others\n";
+		printf("%o", $mode);
+		exit(1);
+	}
+	return(1);
+}
 
-Commands:
-    show        List saved variables in human-readable format
-    eval        Generate shell code to set the variables
-    save        Save a variable
-    rm          Delete a variable
-    clear       Clear out the stored variable"""
-    sys.exit(1)
+sub load_store {
+	my ($key, $value);
+	return unless check_store;
+	open(my $handle, '<', $store_file) or die("Cannot read $store_file: $!");
+	while (<$handle>) {
+		chomp;
+		/^(\S+)\s+(.*)$/ or next;
+		($key, $value) = ($1, $2);
+		$store{$key} = $value;
+	}
+	close($handle);
+}
 
-def save_store():
-    store_file = open(store_filename, 'w')
-    pickle.dump(store, store_file, protocol=-1)
-    store_file.close()
+sub save_store {
+	my $key;
+	umask(0077);
+	open(my $handle, '>', $store_file) or die("Cannot open $store_file: $!");
+	foreach $key (keys(%store)) {
+		print $handle "$key\t$store{$key}\n";
+	}
+	close($handle);
+}
 
-    raw_file = open(raw_filename, 'w')
-    for item, value in store.iteritems():
-        print >> raw_file, "export " + item + "=" + value
-    raw_file.close()
+sub get_keyvalue {
+	my $arg = shift;
+	my ($key, $value);
+	$arg =~ /^(\w+)(?:=(.*))?$/;
+	($key, $value) = ($1, $2);
+	unless (defined($2)) {
+		if (exists($ENV{$key})) {
+			$value = $ENV{$key};
+		} else {
+			print STDERR "No such parameter: $key";
+			exit(1);
+		}
+	}
+	return($key, $value);
+}
 
-def get_key():
-    try:
-        return sys.argv[2]
-    except IndexError:
-        print >> sys.stderr, "Usage: envstore " + command + " VARIABLE"
-        sys.exit(2)
-
-try:
-    command = sys.argv[1]
-except IndexError:
-    usage()
-
-store_filename = "/tmp/envstore-" + str(os.getuid())
-raw_filename = os.environ["HOME"] + "/var/tmp/envstore-raw-" + str(os.getuid())
-
-try:
-    if os.stat(store_filename).st_uid != os.getuid():
-        print >> sys.stderr, "envstore: Store file does not belong to current user"
-        sys.exit(6)
-    store_file = open(store_filename)
-    store = pickle.load(store_file)
-    store_file.close()
-except (IOError, OSError):
-    store = {}
-
-if command == "show":
-    for k, v in store.iteritems():
-        print k + "\t\t" + v
-    print "%i entries" % len(store)
-
-elif command == "eval":
-    for k, v in store.iteritems():
-        print "export " + k + "=" + v
-
-elif command == "save":
-    arg = get_key()
-
-    if "=" in arg:
-        key, value = arg.split('=', 2)
-
-    else:
-        key = arg
-        try:
-            value = os.environ[key]
-        except KeyError:
-            print >> sys.stderr, key + " does not exist in environment"
-            sys.exit(3)
-
-    store[key] = value
-    save_store()
-
-elif command == "rm":
-    key = get_key()
-
-    try:
-        del store[key]
-    except KeyError:
-        print >> sys.stderr, key + " does not exist in store"
-        sys.exit(4)
-
-    save_store()
-
-elif command == "clear":
-    os.remove(store_filename)
-    os.remove(raw_filename)
-
-else:
-    usage()
+load_store;
+if ($action eq 'save') {
+	($key, $value) = get_keyvalue($arg);
+	$store{$key} = $value;
+	save_store;
+} elsif ($action eq 'eval') {
+	while (($key, $value) = each(%store)) {
+		$value =~ s/'/'"'"'/g;
+		print "export $key='$value'\n";
+	}
+} elsif ($action eq 'show') {
+	while (($key, $value) = each(%store)) {
+		printf("%-15s = %s\n", $key, $value);
+	}
+} elsif ($action eq 'rm') {
+	delete($store{$arg});
+	save_store;
+} elsif ($action eq 'clear') {
+	unlink($store_file);
+} else {
+	print STDERR "Usage: envstore <save|eval|show|rm|clear> [args]\n";
+	exit(1);
+}
