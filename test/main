@@ -83,6 +83,7 @@ $envstore clear
 
 print -P '\n%F{green}Test passed%F{default}\n'
 
+trap '' ZERR
 echo "## some benchmarks now..."
 TIMEFMT='%*E real, %*U user, %*S system - %P%% CPU - %J'
 
@@ -94,5 +95,5 @@ for i in {0..5000}; {
 echo
 
 repeat 2 {time $envstore eval > /dev/null}
-repeat 2 {time $envstore rm 99999 > /dev/null}
+time $envstore rm 999 > /dev/null
 repeat 2 {time $envstore clear}
