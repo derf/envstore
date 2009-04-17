@@ -9,6 +9,7 @@ my $store_file = "/tmp/.envstore-$>";
 my %store;
 my $action = shift;
 my $arg = shift;
+my $arg2 = shift;
 my ($key, $value);
 
 sub check_store {
@@ -54,11 +55,8 @@ sub save_store {
 }
 
 sub get_keyvalue {
-	my $arg = shift;
-	my ($key, $value);
-	$arg =~ /^(\w+)(?:=(.*))?$/;
-	($key, $value) = ($1, $2);
-	unless (defined($2)) {
+	my ($key, $value) = @_;
+	unless (defined($value)) {
 		if (exists($ENV{$key})) {
 			$value = $ENV{$key};
 		} else {
@@ -71,7 +69,7 @@ sub get_keyvalue {
 
 load_store;
 if ($action eq 'save') {
-	($key, $value) = get_keyvalue($arg);
+	($key, $value) = get_keyvalue($arg, $arg2);
 	$store{$key} = $value;
 	save_store;
 } elsif ($action eq 'eval') {
