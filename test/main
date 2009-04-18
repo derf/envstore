@@ -117,7 +117,7 @@ if ((test_security)) {
 	echo "# world-writable store file"
 	$envstore save fucked yes
 	chmod 777 $store_file
-	[[ $(envstore eval) != *fucked=yes* ]]
+	[[ $($envstore eval) != *fucked=yes* ]]
 	rm $store_file
 	$envstore save fucked yes
 	cat <<- ente
@@ -126,7 +126,7 @@ if ((test_security)) {
 	ente
 	echo -n "[press return when done] "
 	read
-	[[ $(envstore eval) != *fucked=yes* ]]
+	[[ $($envstore eval) != *fucked=yes* ]]
 	cat <<- ente
 		Looking good, you may remove the file now
 		rm $store_file
