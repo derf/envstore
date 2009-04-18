@@ -32,7 +32,6 @@ sub check_store {
 	}
 	if ($mode > 0) {
 		print STDERR "envstore: store file writable by group/others\n";
-		printf("%o", $mode);
 		exit(1);
 	}
 	return(1);
