@@ -12,6 +12,13 @@ my $arg = shift;
 my $arg2 = shift;
 my ($key, $value);
 
+sub usage {
+	print STDERR "Usage: envstore <eval|show|clear>\n";
+	print STDERR "       envstore save <var> [value]\n";
+	print STDERR "       envstore rm <var>\n";
+	exit(1);
+}
+
 sub check_store {
 	my ($mode, $uid);
 	unless (-e $store_file) {
@@ -60,15 +67,17 @@ sub get_keyvalue {
 		if (exists($ENV{$key})) {
 			$value = $ENV{$key};
 		} else {
-			print STDERR "No such parameter: $key";
+			print STDERR "No such parameter: $key\n";
 			exit(1);
 		}
 	}
 	return($key, $value);
 }
 
+usage unless defined($action);
 load_store;
 if ($action eq 'save') {
+	usage unless defined($arg);
 	($key, $value) = get_keyvalue($arg, $arg2);
 	$store{$key} = $value;
 	save_store;
@@ -77,18 +86,18 @@ if ($action eq 'save') {
 		$value =~ s/'/'"'"'/g;
 		print "export $key='$value'\n";
 	}
-} elsif ($action eq 'show') {
+} elsif ($action eq 'show' or $action eq 'list') {
 	while (($key, $value) = each(%store)) {
 		printf("%-15s = %s\n", $key, $value);
 	}
 } elsif ($action eq 'rm') {
+	usage unless defined($arg);
 	delete($store{$arg});
 	save_store;
 } elsif ($action eq 'clear') {
 	unlink($store_file);
 } else {
-	print STDERR "Usage: envstore <save|eval|show|rm|clear> [args]\n";
-	exit(1);
+	usage;
 }
 __END__
 
@@ -117,7 +126,7 @@ Forget all stored variables
 
 Produce shell code for evaluation, restoring all saved variables
 
-=item B<save> I<variable>[=I<value>]
+=item B<save> I<variable> [I<value>]
 
 Save I<variable> either with it's current shell value or with I<value>
 
