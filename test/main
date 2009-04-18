@@ -1,12 +1,21 @@
 #!/usr/bin/env zsh
 setopt err_exit
-typeset envstore=${1-envstore}
+typeset -i benchmark=0 apionly=0
 
+while [[ $1 == --* ]] {
+	case $1 in
+		--benchmark) benchmark=1 ;;
+		--api-only) apionly=1 ;;
+	esac
+	shift
+}
+
+typeset envstore=${1-envstore}
 trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b\nrm -rf $testdir'" ZERR
 trap "$envstore clear" INT
 
 cat <<- ente
-	Usage: $0 [path to envstore]
+	Usage: $0 [--benchmark] [--api-only] [path to envstore]
 	Note: this script will remove/overwrite your envstore store file.
 	The envstore script needs to be compatible with the original envstore API,
 	that is, it should implement the commends "clear", "rm", "eval",
@@ -81,19 +90,29 @@ eval $($envstore eval)
 unset hello
 $envstore clear
 
+if ((apionly == 0)) {
+	echo "# invalid invocations"
+	! $envstore save
+	unset nonexistent
+	! $envstore save nonexistent
+	! $envstore rm
+}
+
 print -P '\n%F{green}Test passed%F{default}\n'
 
-trap '' ZERR
-echo "## some benchmarks now..."
-TIMEFMT='%*E real, %*U user, %*S system - %P%% CPU - %J'
+if ((benchmark)) {
+	trap '' ZERR
+	echo "## some benchmarks now..."
+	TIMEFMT='%*E real, %*U user, %*S system - %P%% CPU - %J'
 
-echo "# adding 5000 vars (this could take a _long_ time)"
-for i in {0..5000}; {
-	(( i % 500 )) || echo "# $((5000-i)) to go"
-	$envstore save $i $i$i$i
+	echo "# adding 5000 vars (this could take a _long_ time)"
+	for i in {0..5000}; {
+		(( i % 500 )) || echo "# $((5000-i)) to go"
+		$envstore save $i $i$i$i
+	}
+	echo
+
+	repeat 2 {time $envstore eval > /dev/null}
+	time $envstore rm 999 > /dev/null
+	repeat 2 {time $envstore clear}
 }
-echo
-
-repeat 2 {time $envstore eval > /dev/null}
-time $envstore rm 999 > /dev/null
-repeat 2 {time $envstore clear}
