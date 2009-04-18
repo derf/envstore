@@ -1,21 +1,30 @@
 #!/usr/bin/env zsh
 setopt err_exit
-typeset -i benchmark=0 apionly=0
+typeset -i benchmark=0 test_extended=0 test_security=0
 
 while [[ $1 == --* ]] {
 	case $1 in
+		--all) test_extended=1; test_security=1 ;;
 		--benchmark) benchmark=1 ;;
-		--api-only) apionly=1 ;;
+		--extended) test_extended=1 ;;
+		--security) test_security=1 ;;
 	esac
 	shift
 }
 
 typeset envstore=${1-envstore}
-trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b\nrm -rf $testdir'" ZERR
+typeset store_file=${2-/tmp/.envstore-$UID}
+trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
 trap "$envstore clear" INT
 
 cat <<- ente
-	Usage: $0 [--benchmark] [--api-only] [path to envstore]
+	Usage: $0 [options] [path to envstore] [path to envstore store file]
+	valid options are:
+	     --all         enable all test options (except --benchmark)
+	     --benchmark   do a little benchmark after the test (might cause CPU and HDD stress)
+	     --extended    Test for more than just the new envstore API (invalid invocations etc)
+	     --security    Test for security (world-writable store file etc)
+
 	Note: this script will remove/overwrite your envstore store file.
 	The envstore script needs to be compatible with the original envstore API,
 	that is, it should implement the commends "clear", "rm", "eval",
@@ -90,12 +99,40 @@ eval $($envstore eval)
 unset hello
 $envstore clear
 
-if ((apionly == 0)) {
+if ((test_extended)) {
 	echo "# invalid invocations"
 	! $envstore save
 	unset nonexistent
 	! $envstore save nonexistent
 	! $envstore rm
+
+	echo "# other invocations"
+	$envstore show
+	$envstore eval
+	$envstore rm nonexistent
+	$envstore clear
+}
+
+if ((test_security)) {
+	echo "# world-writable store file"
+	$envstore save fucked yes
+	chmod 777 $store_file
+	[[ $(envstore eval) != *fucked=yes* ]]
+	rm $store_file
+	$envstore save fucked yes
+	cat <<- ente
+		Now, enter the following as root:
+		chown root $store_file
+	ente
+	echo -n "[press return when done] "
+	read
+	[[ $(envstore eval) != *fucked=yes* ]]
+	cat <<- ente
+		Looking good, you may remove the file now
+		rm $store_file
+	ente
+	echo -n "[press return when done] "
+	read
 }
 
 print -P '\n%F{green}Test passed%F{default}\n'
