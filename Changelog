@@ -1,0 +1,5 @@
+envstore 1.0 - Thu May 21 2009
+
+    * save, show, eval, remove and clear parameters
+    * basic security checks
+    * Umlauts, spaces etc. work fine
