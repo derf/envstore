@@ -100,6 +100,16 @@ unset hello
 $envstore clear
 
 if ((test_extended)) {
+	echo "# $envstore save (newline in value)"
+	export flurbl=$'yo my fresh\nhomies'
+	$envstore save flurbl
+	unset flurbl
+	# XXX eval does not like newlines. Not even in dash.
+	source <($envstore eval)
+	[[ $flurbl == $'yo my fresh\nhomies' ]]
+	unset flurbl
+	$envstore clear
+
 	echo "# invalid invocations"
 	! $envstore save
 	unset nonexistent

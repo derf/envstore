@@ -45,7 +45,11 @@ sub load_store {
 		chomp;
 		/^(\S+)\s+(.*)$/ or next;
 		($key, $value) = ($1, $2);
-		$store{$key} = $value;
+		if (exists($store{$key})) {
+			$store{$key} .= "\n$value";
+		} else {
+			$store{$key} = $value;
+		}
 	}
 	close($handle);
 }
@@ -55,7 +59,9 @@ sub save_store {
 	umask(0077);
 	open(my $handle, '>', $store_file) or die("Cannot open $store_file: $!");
 	foreach $key (keys(%store)) {
-		print $handle "$key\t$store{$key}\n";
+		foreach (split(/\n/, $store{$key})) {
+			print $handle "$key\t$_\n";
+		}
 	}
 	close($handle);
 }
