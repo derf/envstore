@@ -4,6 +4,7 @@
 ## License: WTFPL <http://sam.zoy.org/wtfpl>
 use strict;
 use warnings;
+use Simplestore;
 
 my $store_file = "/tmp/.envstore-$>";
 my %store;
@@ -38,32 +39,13 @@ sub check_store {
 }
 
 sub load_store {
-	my ($key, $value);
 	return unless check_store;
-	open(my $handle, '<', $store_file) or die("Cannot read $store_file: $!");
-	while (<$handle>) {
-		chomp;
-		/^(\S+)\s+(.*)$/ or next;
-		($key, $value) = ($1, $2);
-		if (exists($store{$key})) {
-			$store{$key} .= "\n$value";
-		} else {
-			$store{$key} = $value;
-		}
-	}
-	close($handle);
+	%store = %{load($store_file) || {}};
 }
 
 sub save_store {
-	my $key;
 	umask(0077);
-	open(my $handle, '>', $store_file) or die("Cannot open $store_file: $!");
-	foreach $key (keys(%store)) {
-		foreach (split(/\n/, $store{$key})) {
-			print $handle "$key\t$_\n";
-		}
-	}
-	close($handle);
+	save($store_file, \%store);
 }
 
 sub get_keyvalue {
