@@ -5,8 +5,9 @@ build/envstore.1: bin/envstore
 	pod2man $< > $@
 
 install: build/envstore.1
-	install -m 755 -D bin/envstore $(prefix)/bin/envstore
-	install -m 644 -D build/envstore.1 $(prefix)/share/man/man1/envstore.1
+	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
+	cp bin/envstore $(prefix)/bin/envstore
+	cp build/envstore.1 $(prefix)/share/man/man1/envstore.1
 
 uninstall:
 	rm -f $(prefix)/bin/envstore
