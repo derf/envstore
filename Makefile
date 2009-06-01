@@ -9,10 +9,10 @@ install: build/envstore.1
 	install -m 644 -D build/envstore.1 $(prefix)/share/man/man1/envstore.1
 
 uninstall:
-	$(RM) $(prefix)/bin/envstore
-	$(RM) $(prefix)/share/man/man1/envstore
+	rm -f $(prefix)/bin/envstore
+	rm -f $(prefix)/share/man/man1/envstore
 
 clean:
-	$(RM) -r build
+	rm -rf build
 
 .PHONY: install uninstall clean
