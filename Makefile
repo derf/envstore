@@ -7,10 +7,12 @@ build/envstore.1: bin/envstore
 install: build/envstore.1
 	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
 	cp bin/envstore $(prefix)/bin/envstore
+	cp bin/envify $(prefix)/bin/envify
 	cp build/envstore.1 $(prefix)/share/man/man1/envstore.1
 
 uninstall:
 	rm -f $(prefix)/bin/envstore
+	rm -f $(pefix)/bin/envify
 	rm -f $(prefix)/share/man/man1/envstore
 
 clean:
