@@ -14,10 +14,7 @@ my $arg2 = shift;
 my ($key, $value);
 
 sub usage {
-	print STDERR "Usage: envstore <eval|show|clear>\n";
-	print STDERR "       envstore save <var> [value]\n";
-	print STDERR "       envstore rm <var>\n";
-	exit(1);
+	exec('perldoc', '-F', $0) or die("Yo, cannot execute perldoc -F $0, so do it yourself");
 }
 
 sub check_store {
