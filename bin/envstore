@@ -14,7 +14,8 @@ my $arg2 = shift;
 my ($key, $value);
 
 sub usage {
-	exec('perldoc', '-F', $0) or die("Yo, cannot execute perldoc -F $0, so do it yourself");
+	print STDERR "Invalid invocation - see perldoc -F $0\n";
+	exit(1);
 }
 
 sub check_store {
