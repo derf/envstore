@@ -4,6 +4,7 @@
 ## License: WTFPL <http://sam.zoy.org/wtfpl>
 use strict;
 use warnings;
+use Pod::Usage;
 use Simplestore;
 
 my $store_file = "/tmp/.envstore-$>";
@@ -14,8 +15,13 @@ my $arg2 = shift;
 my ($key, $value);
 
 sub usage {
-	print STDERR "Invalid invocation - see perldoc -F $0\n";
-	exit(1);
+	pod2usage(
+		-message  => 'Syntax error',
+		-exitval  => 1,
+		-verbose  => 99,
+		-sections => 'SYNOPSIS|DESCRIPTION',
+		-output   => \*STDERR,
+	);
 }
 
 sub check_store {
