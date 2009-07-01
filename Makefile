@@ -12,7 +12,7 @@ install: build/envstore.1
 
 uninstall:
 	rm -f $(prefix)/bin/envstore
-	rm -f $(pefix)/bin/envify
+	rm -f $(prefix)/bin/envify
 	rm -f $(prefix)/share/man/man1/envstore
 
 clean:
