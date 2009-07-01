@@ -12,7 +12,7 @@ while [[ $1 == --* ]] {
 	shift
 }
 
-typeset envstore=${1-envstore}
+typeset envstore=${1-bin/envstore}
 typeset store_file=${2-/tmp/envstore-$UID}
 trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
 trap "$envstore clear" INT
