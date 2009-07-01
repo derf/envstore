@@ -30,11 +30,11 @@ sub check_store {
 		return(0);
 	}
 	($mode, $uid) = (stat($store_file))[2,4];
-	$mode &= 0x00077;
 	if ($uid != $<) {
 		print STDERR "envstore: store file not owned by us\n";
 		exit(1);
 	}
+	$mode &= 0x00077;
 	if ($mode > 0) {
 		print STDERR "envstore: store file writable by group/others\n";
 		exit(1);
