@@ -10,7 +10,7 @@ B<envify> I<command>...
 
 =head1 DESCRIPTION
 
-B<envify> loads the environment saved by B<envstore> and then executed I<command>.
+B<envify> loads the environment saved by B<envstore> and then executes I<command>.
 
 =head1 SEE ALSO
 
