@@ -119,7 +119,7 @@ Produce shell code for evaluation, restoring all saved variables
 
 =item B<save> I<variable> [I<value>]
 
-Save I<variable> either with it's current shell value or with I<value>
+Save I<variable> either with its current shell value or with I<value>
 
 =item B<show>
 
