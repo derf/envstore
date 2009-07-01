@@ -32,6 +32,11 @@ cat <<- ente
 
 ente
 
+echo "# Documentation"
+for i in man/*/*; {
+	podchecker -warnings -warnings $i
+}
+
 echo "# $envstore clear"
 $envstore clear
 
