@@ -129,10 +129,10 @@ List saved variables in better readable format
 
 Remove I<variable> from store
 
+=back
+
 =head1 AUTHOR
 
-B<envstore> was written by Daniel Friesel <derf@derf.homelinux.org>
+B<envstore> was written by Daniel Friesel E<lt>derf@derf.homelinux.orgE<gt>
 
-Original idea and script by Maximilian Gass <mxey@ghosthacking.net>
-
-=back
+Original idea and script by Maximilian Gass E<lt>mxey@ghosthacking.netE<gt>
