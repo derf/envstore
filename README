@@ -1,0 +1,3 @@
+Requires:
+  - perl
+  - Simplestore (https://derf.homelinux.org/~derf/projects/simplestore)
