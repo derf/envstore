@@ -7,7 +7,7 @@ use warnings;
 use Pod::Usage;
 use Simplestore;
 
-my $store_file = "/tmp/.envstore-$>";
+my $store_file = "/tmp/envstore-$>";
 my %store;
 my $action = shift;
 my $arg = shift;
