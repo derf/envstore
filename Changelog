@@ -1,3 +1,9 @@
+envstore 1.1 - Wed Jul 1 2009
+
+    * Use Simplestore to save the environment
+    * Various code and documentation improvements
+    * The store file is now saved as /tmp/envstore-UID
+
 envstore 1.0 - Thu May 21 2009
 
     * save, show, eval, remove and clear parameters
