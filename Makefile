@@ -12,6 +12,10 @@ install: manuals
 	cp bin/envify $(prefix)/bin/envify
 	cp build/envstore.1 $(prefix)/share/man/man1/envstore.1
 	cp build/envify.1 $(prefix)/share/man/man1/envify.1
+	chmod 755 $(prefix)/bin/envstore
+	chmod 755 $(prefix)/bin/envify
+	chmod 644 $(prefix)/share/man/man1/envstore.1
+	chmod 644 $(prefix)/share/man/man1/envify.1
 
 uninstall:
 	rm -f $(prefix)/bin/envstore
