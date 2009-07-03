@@ -116,10 +116,10 @@ if ((test_extended)) {
 	$envstore clear
 
 	echo "# invalid invocations"
-	! $envstore save
+	! $envstore save &> /dev/null
 	unset nonexistent
-	! $envstore save nonexistent
-	! $envstore rm
+	! $envstore save nonexistent &> /dev/null
+	! $envstore rm &> /dev/null
 
 	echo "# other invocations"
 	$envstore show
