@@ -1,12 +1,13 @@
 #!/usr/bin/env zsh
 setopt err_exit
-typeset -i benchmark=0 test_extended=0 test_security=0
+typeset -i benchmark=0 test_extended=0 test_security=0 help=0
 
 while [[ $1 == --* ]] {
 	case $1 in
 		--all) test_extended=1; test_security=1 ;;
 		--benchmark) benchmark=1 ;;
 		--extended) test_extended=1 ;;
+		--help) help=1 ;;
 		--security) test_security=1 ;;
 	esac
 	shift
@@ -17,20 +18,22 @@ typeset store_file=${2-/tmp/envstore-$UID}
 trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
 trap "$envstore clear" INT
 
-cat <<- ente
-	Usage: $0 [options] [path to envstore] [path to envstore store file]
-	valid options are:
-	     --all         enable all test options (except --benchmark)
-	     --benchmark   do a little benchmark after the test (might cause CPU and HDD stress)
-	     --extended    Test for more than just the new envstore API (invalid invocations etc)
-	     --security    Test for security (world-writable store file etc)
+if ((help)) {
+	cat <<- ente
+		Usage: $0 [options] [path to envstore] [path to envstore store file]
+		valid options are:
+			--all         enable all test options (except --benchmark)
+			--benchmark   do a little benchmark after the test (might cause CPU and HDD stress)
+			--extended    Test for more than just the new envstore API (invalid invocations etc)
+			--security    Test for security (world-writable store file etc)
 
-	Note: this script will remove/overwrite your envstore store file.
-	The envstore script needs to be compatible with the original envstore API,
-	that is, it should implement the commends "clear", "rm", "eval",
-	"save var" and "save var value"
-
-ente
+		Note: this script will remove/overwrite your envstore store file.
+		The envstore script needs to be compatible with the original envstore API,
+		that is, it should implement the commends "clear", "rm", "eval",
+		"save var" and "save var value"
+	ente
+	exit 0
+}
 
 echo "# Documentation"
 for i in man/*/*; {
