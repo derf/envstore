@@ -160,10 +160,11 @@ if ((benchmark)) {
 	echo "## some benchmarks now..."
 	TIMEFMT='%*E real, %*U user, %*S system - %P%% CPU - %J'
 
-	echo "# adding 5000 vars (this could take a _long_ time)"
-	for i in {0..5000}; {
-		(( i % 500 )) || echo "# $((5000-i)) to go"
-		$envstore save $i $i$i$i
+	echo "# adding 10000 vars (this could take a _long_ time)"
+	$envstore clear
+	for i in {0..10000}; {
+		(( i % 1000 )) || echo "# $((10000-i)) to go"
+		echo "$i $i$i$i" >> $store_file
 	}
 	echo
 
