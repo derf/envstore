@@ -36,9 +36,7 @@ if ((help)) {
 }
 
 echo "# Documentation"
-for i in man/*/*; {
-	podchecker -warnings -warnings $i
-}
+podchecker -warnings -warnings man/*/*
 
 echo "# $envstore clear"
 $envstore clear
