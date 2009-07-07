@@ -6,7 +6,7 @@ build/%.1: man/1/%.pod
 	mkdir -p build
 	pod2man $< > $@
 
-tests: test/main
+test: test/main
 	zsh $< --extended
 
 install: manuals
@@ -29,4 +29,4 @@ uninstall:
 clean:
 	rm -rf build
 
-.PHONY: install manuals tests uninstall clean
+.PHONY: install manuals test uninstall clean
