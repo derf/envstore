@@ -2,7 +2,7 @@ prefix ?= /usr/local
 
 manuals: build/envstore.1 build/envify.1
 
-build/%.1: man/1/%
+build/%.1: man/1/%.pod
 	mkdir -p build
 	pod2man $< > $@
 
