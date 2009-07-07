@@ -6,6 +6,9 @@ build/%.1: man/1/%.pod
 	mkdir -p build
 	pod2man $< > $@
 
+tests: test/main
+	zsh $< --extended
+
 install: manuals
 	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
 	cp bin/envstore $(prefix)/bin/envstore
@@ -26,4 +29,4 @@ uninstall:
 clean:
 	rm -rf build
 
-.PHONY: install manuals uninstall clean
+.PHONY: install manuals tests uninstall clean
