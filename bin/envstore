@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 use Pod::Usage;
-use Simplestore;
+use Storable;
 
 my $store_file = "/tmp/envstore-$>";
 my %store;
@@ -44,12 +44,12 @@ sub check_store {
 
 sub load_store {
 	return unless check_store;
-	%store = %{load($store_file) || {}};
+	%store = %{retrieve($store_file) || {}};
 }
 
 sub save_store {
 	umask(0077);
-	save($store_file, \%store);
+	store(\%store, $store_file);
 }
 
 sub get_keyvalue {
