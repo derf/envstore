@@ -102,7 +102,7 @@ B<envstore> I<command> [ I<arguments> ]
 
 =head1 DESCRIPTION
 
-envstore can safe and restore environment variables, thus transferring them
+envstore can save and restore environment variables, thus transferring them
 between different shells.
 
 I<command> must be one of
