@@ -21,8 +21,7 @@ if ((help)) {
 	cat <<- ente
 		Usage: $0 [options] [path to envstore] [path to envstore store file]
 		valid options are:
-			--all         enable all test options (except --benchmark)
-			--benchmark   do a little benchmark after the test (might cause CPU and HDD stress)
+			--all         enable all test options
 			--extended    Test for more than just the new envstore API (invalid invocations etc)
 			--security    Test for security (world-writable store file etc)
 
