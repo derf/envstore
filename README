@@ -1,5 +1,5 @@
 Requires:
-  - perl
+  - perl >= 5.10
 
 Installation:
 As user, run

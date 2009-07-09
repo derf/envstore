@@ -4,6 +4,7 @@
 ## License: WTFPL <http://sam.zoy.org/wtfpl>
 use strict;
 use warnings;
+use 5.010;
 use Pod::Usage;
 use Storable 'nstore', 'retrieve';
 
@@ -67,28 +68,35 @@ sub get_keyvalue {
 
 usage unless defined($action);
 load_store;
-if ($action eq 'save') {
-	usage unless defined($arg);
-	($key, $value) = get_keyvalue($arg, $arg2);
-	$store{$key} = $value;
-	save_store;
-} elsif ($action eq 'eval') {
-	while (($key, $value) = each(%store)) {
-		$value =~ s/'/'"'"'/g;
-		print "export $key='$value'\n";
+given ($action) {
+	when ('save') {
+		usage unless defined($arg);
+		($key, $value) = get_keyvalue($arg, $arg2);
+		$store{$key} = $value;
+		save_store;
 	}
-} elsif ($action eq 'show' or $action eq 'list') {
-	while (($key, $value) = each(%store)) {
-		printf("%-15s = %s\n", $key, $value);
+	when ('eval') {
+		while (($key, $value) = each(%store)) {
+			$value =~ s/'/'"'"'/g;
+			print "export $key='$value'\n";
+		}
 	}
-} elsif ($action eq 'rm') {
-	usage unless defined($arg);
-	delete($store{$arg});
-	save_store;
-} elsif ($action eq 'clear') {
-	unlink($store_file);
-} else {
-	usage;
+	when (['show', 'list']) {
+		while (($key, $value) = each(%store)) {
+			printf("%-15s = %s\n", $key, $value);
+		}
+	}
+	when ('rm') {
+		usage unless defined($arg);
+		delete($store{$arg});
+		save_store;
+	}
+	when ('clear') {
+		unlink($store_file);
+	}
+	default {
+		usage;
+	}
 }
 __END__
 
