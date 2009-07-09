@@ -31,12 +31,12 @@ sub check_store {
 	}
 	($mode, $uid) = (stat($store_file))[2,4];
 	if ($uid != $<) {
-		print STDERR "envstore: store file not owned by us\n";
+		print STDERR "envstore: store file is insecure (not owned by us)\n";
 		exit(1);
 	}
 	$mode &= 0x00077;
 	if ($mode > 0) {
-		print STDERR "envstore: store file writable by group/others\n";
+		print STDERR "envstore: store file is insecure (writable by group/others)\n";
 		exit(1);
 	}
 	return(1);
@@ -58,7 +58,7 @@ sub get_keyvalue {
 		if (exists($ENV{$key})) {
 			$value = $ENV{$key};
 		} else {
-			print STDERR "No such parameter: $key\n";
+			print STDERR "No such parameter: $key (perhaps you forgot to export it?)\n";
 			exit(1);
 		}
 	}
