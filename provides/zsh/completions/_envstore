@@ -25,7 +25,7 @@ function _saved_param () {
 }
 
 if (( CURRENT == 2 )) {
-	if [[ -r /tmp/.envstore-$UID ]] {
+	if [[ -r /tmp/envstore-$UID ]] {
 		_describe command options
 	} else {
 		_describe command options_nofile
