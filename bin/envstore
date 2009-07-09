@@ -7,7 +7,7 @@ use warnings;
 use Pod::Usage;
 use Storable 'nstore', 'retrieve';
 
-my $store_file = "/tmp/envstore-$>";
+my $store_file = $ENV{ENVSTORE_FILE} || "/tmp/envstore-$>";
 my %store;
 my $action = shift;
 my $arg = shift;
@@ -128,6 +128,17 @@ List saved variables in better readable format
 =item B<rm> I<variable>
 
 Remove I<variable> from store
+
+=back
+
+=head1 ENVIRONMENT
+
+=over
+
+=item B<ENVSTORE_FILE>
+
+The file in which the environment parameters are stored. By default
+F</tmp/envstore-$UID>
 
 =back
 

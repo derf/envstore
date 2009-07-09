@@ -13,8 +13,8 @@ while [[ $1 == --* ]] {
 }
 
 typeset envstore=${1-bin/envstore}
-typeset store_file=${2-/tmp/envstore-$UID}
-typeset backup_file="/tmp/envstore-backup-$UID"
+typeset store_file="/tmp/envstore-test-$UID"
+export ENVSTORE_FILE=$store_file
 trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
 trap "$envstore clear" INT
 
@@ -32,10 +32,6 @@ if ((help)) {
 		"save var" and "save var value"
 	ente
 	exit 0
-}
-
-if [[ -e $store_file ]] {
-	mv $store_file $backup_file
 }
 
 echo "# Documentation"
@@ -155,7 +151,3 @@ if ((test_security)) {
 }
 
 print -P '\n%F{green}Test passed%F{default}'
-
-if [[ -e $backup_file ]] {
-	mv $backup_file $store_file
-}
