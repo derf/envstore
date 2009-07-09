@@ -1,2 +1,9 @@
 Requires:
   - perl
+
+Installation:
+As user, run
+  make
+  make test
+then, as root
+  make install
