@@ -1,3 +1,8 @@
+envstore 1.2 - Thu Jul 9 2009
+
+    * Use Storable instead of Simplestore
+    * Use ENVSTORE_FILE parameter to set where the store is saved
+
 envstore 1.1 - Wed Jul 1 2009
 
     * Use Simplestore to save the environment
