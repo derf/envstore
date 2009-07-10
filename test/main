@@ -126,6 +126,11 @@ if ((test_extended)) {
 	$envstore eval
 	$envstore rm nonexistent
 	$envstore clear
+
+	echo "# envify"
+	$envstore save oaei lalala
+	[[ $(bin/envify sh test/envify) == lalala ]]
+	$envstore clear
 }
 
 if ((test_security)) {
