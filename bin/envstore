@@ -150,6 +150,18 @@ F</tmp/envstore-$UID>
 
 =back
 
+=head1 LIMITATIONS
+
+You should not store null bytes or similar extremely weird binary data. They
+might work fine, but there's a high chance that somewhere, something goes wrong
+and you start to lose bytes or get undefined behaviour.
+
+Also, since shells 'flatten' the input when using eval, newlines in variable
+values will be stored correctly, but silently dropped when loading the
+environment with eval.  You can work around that by doing
+C<< envstore eval E<gt> $tmpfile; source $tmpfile >> or (in zsh)
+C<< source E<lt>(envstore eval) >>.
+
 =head1 AUTHOR
 
 B<envstore> was written by Daniel Friesel E<lt>derf@derf.homelinux.orgE<gt>
