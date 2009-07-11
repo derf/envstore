@@ -109,10 +109,20 @@ if ((test_extended)) {
 	export flurbl=$'yo my fresh\nhomies'
 	$envstore save flurbl
 	unset flurbl
-	# XXX eval does not like newlines. Not even in dash.
+	# eval does not like newlines. Not even in dash.
 	source <($envstore eval)
 	[[ $flurbl == $'yo my fresh\nhomies' ]]
 	unset flurbl
+	$envstore clear
+
+	echo "# $envstore save (binary values)"
+	export noise=$'\xa0\xa5\x25\x01\x02\x77\xff\xf0'
+	$envstore save noise
+	pre_noise=$noise
+	unset noise
+	eval $($envstore eval)
+	[[ $noise == $pre_noise ]]
+	unset noise pre_noise
 	$envstore clear
 
 	echo "# invalid invocations"
