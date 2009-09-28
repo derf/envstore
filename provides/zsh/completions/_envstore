@@ -39,7 +39,7 @@ if (( CURRENT == 2 )) {
 			_saved_param
 		;;
 		save)
-			_parameters -g '(scalar|integer)*export'
+			_parameters -g '(scalar|integer)*export*'
 		;;
 		*)
 			_message 'no more arguments'
