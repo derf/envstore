@@ -21,7 +21,7 @@ options_nofile=(
 
 function _saved_param () {
 	_wanted parameter expl 'saved parameter' \
-	compadd $(envstore eval -e | cut -d ' ' -f 2 | cut -d '=' -f 1)
+	compadd $(envstore eval | cut -d ' ' -f 2 | cut -d '=' -f 1)
 }
 
 if (( CURRENT == 2 )) {
@@ -32,13 +32,13 @@ if (( CURRENT == 2 )) {
 	}
 } elif (( CURRENT == 3 )) {
 	case ${words[2]} in
-		eval)
+		e*)
 			_arguments -s '2::option:(-e)'
 		;;
-		rm)
+		r*)
 			_saved_param
 		;;
-		save)
+		s*)
 			_parameters -g '(scalar|integer)*export*'
 		;;
 		*)

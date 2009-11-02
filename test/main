@@ -14,6 +14,7 @@ while [[ $1 == --* ]] {
 
 typeset envstore=${1-bin/envstore}
 typeset store_file="/tmp/envstore-test-$UID"
+typeset testdir=$(mktemp -d /tmp/envstore.XXXXXX)
 export ENVSTORE_FILE=$store_file
 trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
 trap "$envstore clear" INT
@@ -34,8 +35,16 @@ if ((help)) {
 	exit 0
 }
 
-echo "# Documentation"
-podchecker -warnings -warnings man/*/*
+echo "# make"
+make -s -B
+
+echo "# make install"
+make -s install prefix=$testdir
+
+echo "# make uninstall"
+make -s uninstall prefix=$testdir
+
+rm -r $testdir
 
 echo "# $envstore clear"
 $envstore clear
@@ -95,6 +104,12 @@ eval $($envstore eval)
 [[ $hello == "the ' dude" ]]
 unset hello
 
+echo "# $envstore save (multiple 's in value)"
+$envstore save hello "the '' ' dude ' moose"
+eval $(envstore eval)
+[[ $hello == "the '' ' dude ' moose" ]]
+unset hello
+
 echo "# $envstore save (UTF-8)"
 export hello='mÿde Rentner… und so'
 $envstore save hello
@@ -105,16 +120,6 @@ unset hello
 $envstore clear
 
 if ((test_extended)) {
-	echo "# $envstore save (newline in value)"
-	export flurbl=$'yo my fresh\nhomies'
-	$envstore save flurbl
-	unset flurbl
-	# eval does not like newlines. Not even in dash.
-	source <($envstore eval)
-	[[ $flurbl == $'yo my fresh\nhomies' ]]
-	unset flurbl
-	$envstore clear
-
 	echo "# $envstore save (binary values)"
 	export noise=$'\xa0\xa5\x25\x01\x02\x77\xff\xf0'
 	$envstore save noise
@@ -132,7 +137,7 @@ if ((test_extended)) {
 	! $envstore rm &> /dev/null
 
 	echo "# other invocations"
-	$envstore show
+	$envstore list
 	$envstore eval
 	$envstore rm nonexistent
 	$envstore clear

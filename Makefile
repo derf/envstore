@@ -1,32 +1,31 @@
-prefix ?= /usr/local
+CFLAGS = -Wall -Wextra -pedantic -O2
+prefix = /usr/local
 
-manuals: build/envstore.1 build/envify.1
+all: bin/envstore
 
-build/%.1: man/1/%.pod
-	mkdir -p build
-	pod2man $< > $@
+bin/%: src/%.c
+	$(CC) $(CFLAGS) -o $@ $<
 
-test: test/main
-	zsh $< --extended
-
-install: manuals
+install: bin/envstore
 	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
 	cp bin/envstore $(prefix)/bin/envstore
 	cp bin/envify $(prefix)/bin/envify
-	cp build/envstore.1 $(prefix)/share/man/man1/envstore.1
-	cp build/envify.1 $(prefix)/share/man/man1/envify.1
+	cp man/1/envify $(prefix)/share/man/man1/envify.1
+	cp man/1/envstore $(prefix)/share/man/man1/envstore.1
 	chmod 755 $(prefix)/bin/envstore
 	chmod 755 $(prefix)/bin/envify
-	chmod 644 $(prefix)/share/man/man1/envstore.1
 	chmod 644 $(prefix)/share/man/man1/envify.1
+	chmod 644 $(prefix)/share/man/man1/envstore.1
 
 uninstall:
-	rm -f $(prefix)/bin/envstore
-	rm -f $(prefix)/bin/envify
-	rm -f $(prefix)/share/man/man1/envstore.1
+	rm -f $(prefix)/bin/envstore $(prefix)/bin/envify
 	rm -f $(prefix)/share/man/man1/envify.1
+	rm -f $(prefix)/share/man/man1/envstore.1
+
+test:
+	zsh test/main --extended
 
 clean:
-	rm -rf build
+	rm -f bin/envstore
 
-.PHONY: install manuals test uninstall clean
+.PHONY: all install uninstall test clean

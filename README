@@ -1,5 +1,5 @@
 Requires:
-  - perl >= 5.10
+C
 
 Installation:
 As user, run
@@ -7,3 +7,10 @@ As user, run
   make test
 then, as root
   make install
+
+
+ --- UPPATE NOTE ---
+
+When updating from envstore 1.x (perl) to 2.x (C), be sure to remove the old
+store file. Otherwise, envstore may run an infinite loop while attempting to load
+it.

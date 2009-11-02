@@ -1,0 +1,11 @@
+.TH ENVIFY 1 "2009-10-29" "Daniel Friesel" "User Commands"
+.SH "NAME"
+\fBenvify\fR \- execute a command in the environment saved with envstore
+.SH "SYNOPSIS"
+\fBenvify\fR \fIcommand\fR...
+.SH "DESCRIPTION"
+\fBenvify\fR loads the environment saved by \fBenvstore\fR and then executes \fIcommand\fR.
+.SH "LIMITATIONS"
+The \fIenvstore\fR\|(1) limitations for null bytes apply here as well.
+.SH "SEE ALSO"
+\fIenvstore\fR\|(1)

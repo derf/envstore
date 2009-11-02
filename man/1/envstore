@@ -1,0 +1,47 @@
+.TH ENVSTORE 1 "2009-10-29" "Daniel Friesel" "User Commands"
+.SH "NAME"
+\fBenvstore\fR \- execute a command in the environment saved with envstore
+.SH "SYNOPSIS"
+\fBenvstore\fR \fIcommand\fR [\fIargs\fR...]
+.SH "DESCRIPTION"
+\fBenvstore\fR can save and restore environment variables,
+thus transferring them between different shells.
+.PP
+\fIcommand\fR must be one of
+.TP
+\fBclear\fR
+Forget all stored variables
+
+.TP
+\fBeval\fR
+Produce shell code for evaluation, restoring all saved variables
+
+.TP
+\fBlist\fR
+List saved variables in better readable format
+
+.TP
+\fBsave\fR \fIvariable\fR [\fIvalue\fR]
+Save \fBvariable\fR either with its current shell value or with \fIvalue\fR
+
+.TP
+\fBrm\fR \fIvariable\fR
+Remove \fIvariable\fR from store
+.PP
+Note: Only the first char of \fIcommand\fR is checked, so "envstore e" is also
+valid.
+.SH "ENVIRONMENT"
+.TP
+\fBENVSTORE_FILE\fR
+The file in which the environment parameters are stored.
+By default /tmp/envstore\-\fIEUID\fR
+
+.SH "LIMITATIONS"
+Variable names or values must not contain null bytes or newlines.
+.PP
+The current maximum length (in bytes) is 127 bytes for the variable name
+and 255 bytes for its content.
+.SH "AUTHOR"
+\fBenvstore\fR was written by Daniel Friesel <derf@derf.homelinux.org>
+.PP
+Original idea and script by Maximilian Gass <mxey@ghosthacking.net>

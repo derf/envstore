@@ -1,3 +1,10 @@
+envstore 2.0 - Mon Nov 2 2009
+
+    * Rewrite in C
+    * Renamed envstore show to envstore list
+    * Newlines in variable values are no longer supported
+    * Introduces single-character arguments (envstore s == envstore save etc)
+
 envstore 1.2 - Thu Jul 9 2009
 
     * Use Storable instead of Simplestore
