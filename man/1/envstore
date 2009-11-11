@@ -39,8 +39,8 @@ By default /tmp/envstore\-\fIEUID\fR
 .SH "LIMITATIONS"
 Variable names or values must not contain null bytes or newlines.
 .PP
-The current maximum length (in bytes) is 127 bytes for the variable name
-and 255 bytes for its content.
+The current maximum length (in bytes) is 255 bytes for the variable name
+and 1023 bytes for its content.
 .SH "AUTHOR"
 \fBenvstore\fR was written by Daniel Friesel <derf@derf.homelinux.org>
 .PP

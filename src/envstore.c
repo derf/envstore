@@ -13,94 +13,18 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-/*
- * This struct is part of a linked list and contains one shell parameter
- */
+#define CMD_EVAL 1
+#define CMD_LIST 2
+#define CMD_RM 3
+#define CMD_SAVE 4
 
-struct parameter {
-	char *name;
-	char *content;
-	struct parameter *next;
-};
+#define PARAM_LENGTH 256
+#define VALUE_LENGTH 1024
+#define SCAN_FORMAT "%255s %1023[^\n]\n"
 
-
-/*
- * Add element to linked list
- *
- * Parameters: list head (may be NULL), new list element
- * Returns new list head
- */
-
-static struct parameter * list_add(struct parameter *first, struct parameter *new) {
-	new->next = first;
-	first = new;
-	return first;
-}
-
-
-/*
- * Remove element from linked list
- *
- * Parameters: list head, ->name part of element to remove
- * Returns new list head (may be NULL)
- */
-
-static struct parameter * list_remove(struct parameter *first, char *string) {
-	struct parameter *cur = first;
-	struct parameter *prev = NULL;
-
-	while (cur != NULL) {
-		if (strcmp(cur->name, string) == 0) {
-
-			if (prev == NULL)
-				return cur->next;
-
-			prev->next = cur->next;
-			return first;
-		}
-		prev = cur;
-		cur = cur->next;
-	}
-	return first;
-}
-
-
-static void store_save(struct parameter *first, char *file) {
-	struct parameter *cur = first;
-	FILE *fp;
-	char *tmpfile = malloc(strlen(file) + 5);
-
-	if (tmpfile == NULL)
-		err(EXIT_FAILURE, "malloc");
-
-	if (snprintf(tmpfile, strlen(file) + 5, "%s.tmp", file) < 3)
-		err(EXIT_FAILURE, "snprintf");
-
-	umask(0077);
-	fp = fopen(tmpfile, "w+");
-	if (fp == NULL)
-		err(EXIT_FAILURE, "Unable to save store to '%s'", file);
-
-	while (cur != NULL) {
-		fprintf(fp, "%s %s\n", cur->name, cur->content);
-		cur = cur->next;
-	}
-
-	if (fclose(fp) != 0)
-		err(EXIT_FAILURE, "fclose %s", file);
-
-	if (rename(tmpfile, file) != 0)
-		err(EXIT_FAILURE, "Unable to rename '%s' to '%s'", tmpfile, file);
-}
-
-
-static struct parameter * store_load(char *file) {
-	struct parameter *first = NULL;
-	struct parameter *new;
+static FILE * store_open(char *file) {
 	struct stat finfo;
 	uid_t self_uid = geteuid();
-	char vname[128];
-	char vcontent[256];
 	FILE *fp = fopen(file, "r");
 
 	/* Assume the store file does not exist and the store is empty
@@ -112,7 +36,7 @@ static struct parameter * store_load(char *file) {
 		return NULL;
 
 	if (fstat(fileno(fp), &finfo) != 0)
-		errx(EXIT_FAILURE, "Unable to verify store file permissions (%s)", file);
+		err(EXIT_FAILURE, "Unable to verify store file permissions (%s)", file);
 
 	if (finfo.st_uid != self_uid)
 		errx(EXIT_FAILURE, "Store file '%s' is insecure (must be owned by you, not uid %d)", file, finfo.st_uid);
@@ -120,24 +44,107 @@ static struct parameter * store_load(char *file) {
 	if ((finfo.st_mode & 077) > 0)
 		errx(EXIT_FAILURE, "Store file '%s' has insecure permissions %04o (recommended: 0600)", file, finfo.st_mode & 07777);
 
-	while (fscanf(fp, "%127s %255[^\n]\n", vname, vcontent) != EOF) {
-		new = malloc(sizeof (struct parameter));
-		if (new == NULL)
-			err(EXIT_FAILURE, "malloc");
+	return fp;
+}
 
-		new->name = strdup(vname);
-		new->content = strdup(vcontent);
+static char * new_filename(char *file) {
+	char *new_file = malloc(strlen(file) + 5);
 
-		if ((new->name == NULL) || (new->content) == NULL)
-			err(EXIT_FAILURE, "strdup");
+	if (new_file == NULL)
+		err(EXIT_FAILURE, "malloc");
 
-		first = list_add(first, new);
+	if (snprintf(new_file, strlen(file) + 5, "%s.tmp", file) < 3)
+		err(EXIT_FAILURE, "snprintf");
+
+	return new_file;
+}
+
+static FILE * store_open_new(char *file) {
+	FILE *fp;
+
+	umask(0077);
+	fp = fopen(file, "w");
+
+	if (fp == NULL)
+		err(EXIT_FAILURE, "fopen %s", file);
+
+	return fp;
+}
+
+
+static inline void print_escaped(char *name, char *content) {
+	unsigned int i;
+
+	printf("export %s='", name);
+
+	for (i = 0; i < strlen(content); i++) {
+		if (content[i] == '\'')
+			fputs("'\"'\"'", stdout);
+		else
+			putchar(content[i]);
 	}
 
+	fputs("'\n", stdout);
+}
+
+
+static void command_disp(char *file, int command) {
+	char vname[PARAM_LENGTH];
+	char vcontent[VALUE_LENGTH];
+	FILE *fp = store_open(file);
+
+	if (fp == NULL)
+		exit(EXIT_SUCCESS);
+
+	while (fscanf(fp, SCAN_FORMAT, vname, vcontent) != EOF) {
+		if (command == CMD_LIST)
+			printf("%-15s = %s", vname, vcontent);
+		else
+			print_escaped(vname, vcontent);
+	}
 	if (fclose(fp) != 0)
 		err(EXIT_FAILURE, "fclose %s", file);
+}
 
-	return first;
+static void command_rm_save(char *old_file, char *param, char *value, int argc, int mode) {
+	char curparam[PARAM_LENGTH];
+	char curvalue[VALUE_LENGTH];
+	char *newvalue;
+	char *new_file = new_filename(old_file);
+	FILE *old_fp = store_open(old_file);
+	FILE *new_fp = store_open_new(new_file);
+
+	if (old_fp != NULL) {
+		while (fscanf(old_fp, SCAN_FORMAT, curparam, curvalue) != EOF) {
+			if (strcmp(curparam, param) != 0)
+				if (fprintf(new_fp, "%s %s\n", curparam, curvalue) <= 0)
+					err(EXIT_FAILURE, "fprintf %s", new_file);
+		}
+		if (fclose(old_fp) != 0)
+			err(EXIT_FAILURE, "fclose %s", old_file);
+	}
+
+	if (mode == CMD_SAVE) {
+		if (argc > 3)
+			newvalue = value;
+		else
+			newvalue = getenv(param);
+
+		if (newvalue == NULL)
+			errx(EXIT_FAILURE, "parameter '%s' has no value", param);
+
+		if ((strlen(param) > PARAM_LENGTH - 1) || (strlen(newvalue) > VALUE_LENGTH - 1))
+			errx(EXIT_FAILURE, "parameter or value too long (see man envstore -> LIMITATIONS)");
+
+		if (fprintf(new_fp, "%s %s\n", param, newvalue) <= 0)
+			err(EXIT_FAILURE, "fprintf %s", new_file);
+	}
+
+	if (fclose(new_fp) != 0)
+		err(EXIT_FAILURE, "fclose %s", new_file);
+
+	if (rename(new_file, old_file) != 0)
+		err(EXIT_FAILURE, "Unable to rename '%s' to '%s'", new_file, old_file);
 }
 
 
@@ -147,69 +154,6 @@ static inline void command_clear(char *store_file) {
 	 * if unlink fails.
 	 */
 	unlink(store_file);
-}
-
-
-static inline void command_eval(char *store_file) {
-	struct parameter *first = store_load(store_file);
-	struct parameter *cur = first;
-	unsigned long int i;
-
-	while (cur != NULL) {
-
-		printf("export %s='", cur->name);
-		for (i = 0; i < strlen(cur->content); i++) {
-			if (cur->content[i] == '\'')
-				fputs("'\"'\"'", stdout);
-			else
-				putchar(cur->content[i]);
-		}
-		fputs("'\n", stdout);
-		cur = cur->next;
-	}
-}
-
-
-static inline void command_list(char *store_file) {
-	struct parameter *first = store_load(store_file);
-	struct parameter *cur = first;
-
-	while (cur != NULL) {
-		printf("%-15s = %s\n", cur->name, cur->content);
-		cur = cur->next;
-	}
-}
-
-
-static inline void command_rm(char *store_file, char *param) {
-	struct parameter *first = store_load(store_file);
-	first = list_remove(first, param);
-	store_save(first, store_file);
-}
-
-
-static inline void command_save(char *store_file, char *param, char *value, int argc) {
-	struct parameter *first = store_load(store_file);
-	struct parameter new;
-	char *newvalue;
-	first = list_remove(first, param);
-
-	if (argc > 3)
-		newvalue = value;
-	else
-		newvalue = getenv(param);
-
-	if (newvalue == NULL)
-		errx(EXIT_FAILURE, "parameter '%s' has no value", param);
-
-	if ((strlen(param) > 127) || (strlen(newvalue) > 255))
-		errx(EXIT_FAILURE, "parameter or value too long (see man envstore -> LIMITATIONS)");
-
-	new.name = param;
-	new.content = newvalue;
-
-	first = list_add(first, &new);
-	store_save(first, store_file);
 }
 
 
@@ -231,25 +175,26 @@ int main(int argc, char **argv) {
 		}
 	}
 
+
 	switch (argv[1][0]) {
 		case 'c':
 			command_clear(store_file);
 			break;
 		case 'e':
-			command_eval(store_file);
+			command_disp(store_file, CMD_EVAL);
 			break;
 		case 'l':
-			command_list(store_file);
+			command_disp(store_file, CMD_LIST);
 			break;
 		case 'r':
 			if (argc < 3)
 				errx(EXIT_FAILURE, "Usage: rm <parameter>");
-			command_rm(store_file, argv[2]);
+			command_rm_save(store_file, argv[2], argv[3], argc, CMD_RM);
 			break;
 		case 's':
 			if (argc < 3)
 				errx(EXIT_FAILURE, "Usage: save <parameter> [value]");
-			command_save(store_file, argv[2], argv[3], argc);
+			command_rm_save(store_file, argv[2], argv[3], argc, CMD_SAVE);
 			break;
 		default:
 			errx(EXIT_FAILURE, "Unknown action: %s", argv[1]);
