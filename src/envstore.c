@@ -72,6 +72,14 @@ static FILE * store_open_new(char *file) {
 }
 
 
+/*
+ * A little note on shell quoting:
+ * ' at beginning and end do most of the job for us, except when we have a '
+ * inside the quoted value. It can't be escaped directly, so we end the quote
+ * (with a ') and then add an escaped '. Possible ways are \' and "'" (in this
+ * case, the latter is used). Afterwards another normal ' is added and the
+ * quoted string continues.
+ */
 static inline void print_escaped(char *name, char *content) {
 	unsigned int i;
 
