@@ -35,16 +35,16 @@ if ((help)) {
 	exit 0
 }
 
-echo "# make"
-make -s -B
-
-echo "# make install"
-make -s install prefix=$testdir
-
-echo "# make uninstall"
-make -s uninstall prefix=$testdir
-
-rm -r $testdir
+#echo "# make"
+#make -s -B
+#
+#echo "# make install"
+#make -s install prefix=$testdir
+#
+#echo "# make uninstall"
+#make -s uninstall prefix=$testdir
+#
+#rm -r $testdir
 
 echo "# $envstore clear"
 $envstore clear
@@ -146,28 +146,6 @@ if ((test_extended)) {
 	$envstore save oaei lalala
 	[[ $(bin/envify sh test/envify) == lalala ]]
 	$envstore clear
-}
-
-if ((test_security)) {
-	echo "# world-writable store file"
-	$envstore save fucked yes
-	chmod 777 $store_file
-	[[ $($envstore eval) != *fucked=yes* ]]
-	rm $store_file
-	$envstore save fucked yes
-	cat <<- ente
-		Now, enter the following as root:
-		chown root $store_file
-	ente
-	echo -n "[press return when done] "
-	read
-	[[ $($envstore eval) != *fucked=yes* ]]
-	cat <<- ente
-		Looking good, you may remove the file now
-		rm $store_file
-	ente
-	echo -n "[press return when done] "
-	read
 }
 
 print -P '\n%F{green}Test passed%F{default}'

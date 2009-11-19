@@ -1,0 +1,53 @@
+#!/bin/sh
+## Copyright © 2009 by Daniel Friesel <derf@derf.homelinux.org>
+## License: WTFPL <http://sam.zoy.org/wtfpl>
+
+: ${ENVSTORE_FILE=$HOME/.envstore}
+ENVSTORE_TMP=$ENVSTORE_FILE.new
+
+case $1 in
+	c|clear)
+		: > $ENVSTORE_FILE
+	;;
+	e|eval|l|list)
+		cat $ENVSTORE_FILE
+	;;
+	s|save)
+
+		if [ -z "$2" ]; then
+			echo "Usage: $0 save <parameter> [value]" >&2
+			exit 1
+		fi
+
+		if [ -n "$3" ]; then
+			CONTENT=$3
+		else
+			eval CONTENT=\$"$2"
+		fi
+
+		if [ -z "$CONTENT" ]; then
+			echo "parameter $2 is empty or no content specified." >&2
+			exit 1
+		fi
+
+		CONTENT=$(echo $CONTENT | sed "s/'/'\"'\"'/g")
+
+		grep -v "^export $2=" $ENVSTORE_FILE > $ENVSTORE_TMP
+		echo "export $2='$CONTENT'" >> $ENVSTORE_TMP
+		mv $ENVSTORE_TMP $ENVSTORE_FILE
+
+	;;
+	r|rm)
+		if [ -z "$2" ]; then
+			echo "Usage: $0 rm <parameter>" >&2
+			exit 1
+		fi
+
+		grep -v "^export $2=" $ENVSTORE_FILE > $ENVSTORE_TMP
+		mv $ENVSTORE_TMP $ENVSTORE_FILE
+	;;
+	*)
+		echo "Usage: $0 clear/eval/save/rm [arguments...]" >&2
+		exit 1
+	;;
+esac
