@@ -27,10 +27,9 @@ static FILE * store_open(char *file) {
 	uid_t self_uid = geteuid();
 	FILE *fp = fopen(file, "r");
 
-	/* Assume the store file does not exist and the store is empty
-	 *   (-> return NULL for empty list)
-	 * If it does in fact exist but has wrong permissions or similar,
-	 * the user will only notice if it happens with envstore save/rm (FIXME)
+	/*
+	 * err() should be used here, but since envstore save may or may not have
+	 * an existing store to work with, return NULL if there's no usable store.
 	 */
 	if (fp == NULL)
 		return NULL;
