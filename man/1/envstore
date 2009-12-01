@@ -1,6 +1,6 @@
 .TH ENVSTORE 1 "2009-10-29" "Daniel Friesel" "User Commands"
 .SH "NAME"
-\fBenvstore\fR \- execute a command in the environment saved with envstore
+\fBenvstore\fR \- save and restore environment variables
 .SH "SYNOPSIS"
 \fBenvstore\fR \fIcommand\fR [\fIargs\fR...]
 .SH "DESCRIPTION"
