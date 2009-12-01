@@ -11,31 +11,26 @@ thus transferring them between different shells.
 .TP
 \fBclear\fR
 Forget all stored variables
-
 .TP
 \fBeval\fR
 Produce shell code for evaluation, restoring all saved variables
-
 .TP
 \fBlist\fR
 List saved variables in better readable format
-
 .TP
 \fBsave\fR \fIvariable\fR [\fIvalue\fR]
 Save \fIvariable\fR either with its current shell value or with \fIvalue\fR
-
 .TP
 \fBrm\fR \fIvariable\fR
 Remove \fIvariable\fR from store
 .PP
-Note: Only the first char of \fIcommand\fR is checked, so "envstore e" is also
-valid.
+Note: Only the first char of \fIcommand\fR is checked, so "envstore e" instead
+of "envstore eval", "envstore c" for "envstore clear" etc. are also valid.
 .SH "ENVIRONMENT"
 .TP
 \fBENVSTORE_FILE\fR
 The file in which the environment parameters are stored.
 By default /tmp/envstore\-\fIEUID\fR
-
 .SH "LIMITATIONS"
 Variable names or values must not contain null bytes or newlines.
 .PP
@@ -45,3 +40,5 @@ and 1023 bytes for its content.
 \fBenvstore\fR was written by Daniel Friesel <derf@derf.homelinux.org>
 .PP
 Original idea and script by Maximilian Gass <mxey@ghosthacking.net>
+.SH "SEE ALSO"
+\fIenvify\fR\|(1)
