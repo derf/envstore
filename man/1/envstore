@@ -1,44 +1,69 @@
-.TH ENVSTORE 1 "2009-10-29" "Daniel Friesel" "User Commands"
-.SH "NAME"
-\fBenvstore\fR \- save and restore environment variables
-.SH "SYNOPSIS"
-\fBenvstore\fR \fIcommand\fR [ \fIargs\fR... ]
-.SH "DESCRIPTION"
-\fBenvstore\fR can save and restore environment variables,
-thus transferring them between different shells.
-.PP
-\fIcommand\fR must be one of
-.TP
-\fBclear\fR
+.Dd December 1, 2009
+.Dt ENVSTORE 1
+.Os
+.Sh NAME
+.Nm envstore
+.Nd save and restore environment variables
+.Sh SYNOPSIS
+.Nm
+.Ar command
+.Op Ar args ...
+.Sh DESCRIPTION
+.Nm
+can save and restore environment variables, thus transferring them between
+different shells.
+.Pp
+.Ar command
+must be one of
+.Bl -tag -width "rm"
+.It Cm clear
 Forget all stored variables
-.TP
-\fBeval\fR
+.It Cm eval
 Produce shell code for evaluation, restoring all saved variables
-.TP
-\fBlist\fR
+.It Cm list
 List saved variables in better readable format
-.TP
-\fBsave\fR \fIvariable\fR [\fIvalue\fR]
-Save \fIvariable\fR either with its current shell value or with \fIvalue\fR
-.TP
-\fBrm\fR \fIvariable\fR
-Remove \fIvariable\fR from store
-.PP
-Note: Only the first char of \fIcommand\fR is checked, so "envstore e" instead
-of "envstore eval", "envstore c" for "envstore clear" etc. are also valid.
-.SH "ENVIRONMENT"
-.TP
-\fBENVSTORE_FILE\fR
-The file in which the environment parameters are stored.
-By default /tmp/envstore\-\fIEUID\fR
-.SH "LIMITATIONS"
+.It Cm save Ar variable Op Ar value
+Save
+.Ar variable
+either with its current shell value or with
+.Ar value
+.It Cm rm Ar variable
+Remove
+.Ar variable from store
+.El
+.Pp
+Note: Only the first character of
+.Ar command
+is checked, so
+.Nm
+.Cm e
+instead of
+.Nm
+.Cm eval ,
+.Nm
+.Cm c
+for
+.Nm
+.Cm clear ,
+etc., are also valid.
+.Sh ENVIRONMENT
+.Bl -tag -width "ENVSTORE_FILE"
+.It Ev ENVSTORE_FILE
+The file in which the environment parameters are stored,
+.Pa /tmp/envstore- Ns Va EUID
+by default,
+.El
+.Sh LIMITATIONS
 Variable names or values must not contain null bytes or newlines.
-.PP
+.Pp
 The current maximum length (in bytes) is 255 bytes for the variable name
 and 1023 bytes for its content.
-.SH "AUTHOR"
-\fBenvstore\fR was written by Daniel Friesel <derf@derf.homelinux.org>
-.PP
-Original idea and script by Maximilian Gass <mxey@ghosthacking.net>
-.SH "SEE ALSO"
-\fIenvify\fR\|(1)
+.Sh AUTHOR
+.Nm
+was written by
+.An Daniel Friesel Aq derf@derf.homelinux.org .
+.Pp
+Original idea and script by
+.An Maximilian Gass Aq mxey@ghosthacking.net .
+.Sh SEE ALSO
+.Xr envify 1

@@ -1,14 +1,25 @@
-.TH ENVIFY 1 "2009-10-29" "Daniel Friesel" "User Commands"
-.SH "NAME"
-\fBenvify\fR \- execute a command in the environment saved with envstore
-.SH "SYNOPSIS"
-\fBenvify\fR \fIcommand\fR [ \fIargs\fR... ]
-.SH "DESCRIPTION"
-\fBenvify\fR loads the environment saved by \fBenvstore\fR and then executes
-\fIcommand\fR.
+.Dd December 1, 2009
+.Dt ENVIFY 1
+.Os
+.Sh NAME
+.Nm envify
+.Nd execute a command in the environment saved with envstore
+.Sh SYNOPSIS
+.Nm
+.Ar command
+.Op Ar args ...
+.Sh DESCRIPTION
+.Nm
+loads the environment saved by
+.Nm envstore
+and then executes
+.Ar command .
+.Pp
 Any arguments specified afterwards will be passed to the command
 (as one would expect).
-.SH "LIMITATIONS"
-The \fIenvstore\fR\|(1) limitations for null bytes apply here as well.
-.SH "SEE ALSO"
-\fIenvstore\fR\|(1)
+.Sh LIMITATIONS
+The
+.Xr envstore 1
+limitations for null bytes apply here as well.
+.Sh SEE ALSO
+.Xr envstore 1
