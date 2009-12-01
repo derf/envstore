@@ -2,9 +2,12 @@
 .SH "NAME"
 \fBenvify\fR \- execute a command in the environment saved with envstore
 .SH "SYNOPSIS"
-\fBenvify\fR \fIcommand\fR...
+\fBenvify\fR \fIcommand\fR [ \fIargs\fR... ]
 .SH "DESCRIPTION"
-\fBenvify\fR loads the environment saved by \fBenvstore\fR and then executes \fIcommand\fR.
+\fBenvify\fR loads the environment saved by \fBenvstore\fR and then executes
+\fIcommand\fR.
+Any arguments specified afterwards will be passed to the command
+(as one would expect).
 .SH "LIMITATIONS"
 The \fIenvstore\fR\|(1) limitations for null bytes apply here as well.
 .SH "SEE ALSO"
