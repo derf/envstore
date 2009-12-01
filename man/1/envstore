@@ -2,7 +2,7 @@
 .SH "NAME"
 \fBenvstore\fR \- save and restore environment variables
 .SH "SYNOPSIS"
-\fBenvstore\fR \fIcommand\fR [\fIargs\fR...]
+\fBenvstore\fR \fIcommand\fR [ \fIargs\fR... ]
 .SH "DESCRIPTION"
 \fBenvstore\fR can save and restore environment variables,
 thus transferring them between different shells.
@@ -22,7 +22,7 @@ List saved variables in better readable format
 
 .TP
 \fBsave\fR \fIvariable\fR [\fIvalue\fR]
-Save \fBvariable\fR either with its current shell value or with \fIvalue\fR
+Save \fIvariable\fR either with its current shell value or with \fIvalue\fR
 
 .TP
 \fBrm\fR \fIvariable\fR
