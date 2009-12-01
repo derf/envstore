@@ -106,7 +106,7 @@ unset hello
 
 echo "# $envstore save (multiple 's in value)"
 $envstore save hello "the '' ' dude ' moose"
-eval $(envstore eval)
+eval $($envstore eval)
 [[ $hello == "the '' ' dude ' moose" ]]
 unset hello
 
@@ -144,7 +144,7 @@ if ((test_extended)) {
 
 	echo "# envify"
 	$envstore save oaei lalala
-	[[ $(bin/envify sh test/envify) == lalala ]]
+	[[ $(PATH=${envstore:h}:$PATH bin/envify sh test/envify) == lalala ]]
 	$envstore clear
 }
 
