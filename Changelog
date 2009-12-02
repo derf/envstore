@@ -1,3 +1,9 @@
+envstore 2.0.1 - Wed Dec 2 2009
+
+    * Remove Bloat[tm] from the source
+    * Use -mdoc macros in the manuals
+    * Increase maximum length of parameter name/value
+
 envstore 2.0 - Mon Nov 2 2009
 
     * Rewrite in C
