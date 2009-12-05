@@ -105,7 +105,7 @@ static void command_disp(char *file, int command) {
 
 	while (fscanf(fp, SCAN_FORMAT, vname, vcontent) != EOF) {
 		if (command == CMD_LIST)
-			printf("%-15s = %s", vname, vcontent);
+			printf("%-15s = %s\n", vname, vcontent);
 		else
 			print_escaped(vname, vcontent);
 	}
