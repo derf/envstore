@@ -102,16 +102,6 @@ envstore clear
 
 # former --extended tests
 
-#echo "# envstore save (binary values)"
-#export noise=$'\xa0\xa5\x25\x01\x02\x77\xff\xf0'
-#envstore save noise
-#pre_noise=$noise
-#unset noise
-#eval $(envstore eval)
-#test "$noise" = "$pre_noise"
-#unset noise pre_noise
-#envstore clear
-
 echo "# invalid invocations"
 ! envstore save > /dev/null 2>&1
 unset nonexistent
