@@ -1,39 +1,20 @@
-#!/usr/bin/env zsh
-setopt err_exit
-typeset -i benchmark=0 test_extended=0 test_security=0 help=0
+#!/bin/sh -e
+#
+# Run 'test/main security' for security checks.
+# Note that these require root access and iteraction with the test script.
 
-while [[ $1 == --* ]] {
-	case $1 in
-		--all) test_extended=1; test_security=1 ;;
-		--extended) test_extended=1 ;;
-		--help) help=1 ;;
-		--security) test_security=1 ;;
-	esac
-	shift
-}
+if [ "$1" = security ]; then
+	test_security=1
+else
+	test_security=0
+fi
 
-typeset envstore=${1-bin/envstore}
-typeset store_file="/tmp/envstore-test-$UID"
-typeset testdir=$(mktemp -d /tmp/envstore.XXXXXX)
+store_file="/tmp/envstore-test-$$"
+testdir=$(mktemp -d /tmp/envstore.XXXXXX)
 export ENVSTORE_FILE=$store_file
-trap "print -P '\n%N:%i: %B%F{red}Test faild!%F{default}%b'" ZERR
-trap "$envstore clear" INT
+PATH=./bin:$PATH
 
-if ((help)) {
-	cat <<- ente
-		Usage: $0 [options] [path to envstore] [path to envstore store file]
-		valid options are:
-			--all         enable all test options
-			--extended    Test for more than just the new envstore API (invalid invocations etc)
-			--security    Test for security (world-writable store file etc)
-
-		Note: this script will remove/overwrite your envstore store file.
-		The envstore script needs to be compatible with the original envstore API,
-		that is, it should implement the commends "clear", "rm", "eval",
-		"save var" and "save var value"
-	ente
-	exit 0
-}
+trap "envstore clear" INT
 
 echo "# make"
 make -s -B
@@ -46,128 +27,125 @@ make -s uninstall prefix=$testdir
 
 rm -r $testdir
 
-echo "# $envstore clear"
-$envstore clear
+echo "# envstore clear"
+envstore clear
 
-echo "# $envstore save var"
+echo "# envstore save var"
 export hello=world
-$envstore save hello
+envstore save hello
 unset hello
 
-echo "# $envstore eval"
-eval $($envstore eval)
-[[ $hello == world ]]
+echo "# envstore eval"
+eval $(envstore eval)
+test "$hello" = world
 unset hello
 
-echo "# $envstore rm"
-$envstore rm hello
-eval $($envstore eval)
-[[ -z $hello ]]
+echo "# envstore rm"
+envstore rm hello
+eval $(envstore eval)
+test -z "$hello"
 
-echo "# $envstore save var value"
-$envstore save hello world
+echo "# envstore save var value"
+envstore save hello world
 
-echo "# $envstore eval"
-eval $($envstore eval)
-[[ $hello == world ]]
+echo "# envstore eval"
+eval $(envstore eval)
+test "$hello" = world
 unset hello
 
-echo "# $envstore clear"
-$envstore clear
-eval $($envstore eval)
-[[ -z $hello ]]
+echo "# envstore clear"
+envstore clear
+eval $(envstore eval)
+test -z "$hello"
 
-echo "# $envstore save + eval (spaces in value), save var"
+echo "# envstore save + eval (spaces in value), save var"
 export hello='your mom'
-$envstore save hello
+envstore save hello
 unset hello
-eval $($envstore eval)
-[[ $hello == 'your mom' ]]
+eval $(envstore eval)
+test "$hello" = 'your mom'
 unset hello
-$envstore clear
+envstore clear
 
-echo "# $envstore save + eval (spaces in value), save var value"
-$envstore save hello 'your mom'
-eval $($envstore eval)
-[[ $hello == 'your mom' ]]
-unset hello
-
-echo "# $envstore save (overwrite)"
-$envstore save hello world
-eval $($envstore eval)
-[[ $hello == world ]]
-$envstore clear
-
-echo "# $envstore save (' in value)"
-$envstore save hello "the ' dude"
-eval $($envstore eval)
-[[ $hello == "the ' dude" ]]
+echo "# envstore save + eval (spaces in value), save var value"
+envstore save hello 'your mom'
+eval $(envstore eval)
+test "$hello" = 'your mom'
 unset hello
 
-echo "# $envstore save (multiple 's in value)"
-$envstore save hello "the '' ' dude ' moose"
-eval $($envstore eval)
-[[ $hello == "the '' ' dude ' moose" ]]
+echo "# envstore save (overwrite)"
+envstore save hello world
+eval $(envstore eval)
+test "$hello" = world
+envstore clear
+
+echo "# envstore save (' in value)"
+envstore save hello "the ' dude"
+eval $(envstore eval)
+test "$hello" = "the ' dude"
 unset hello
 
-echo "# $envstore save (UTF-8)"
+echo "# envstore save (multiple 's in value)"
+envstore save hello "the '' ' dude ' moose"
+eval $(envstore eval)
+test "$hello" = "the '' ' dude ' moose"
+unset hello
+
+echo "# envstore save (UTF-8)"
 export hello='mÿde Rentner… und so'
-$envstore save hello
+envstore save hello
 unset hello
-eval $($envstore eval)
-[[ $hello == 'mÿde Rentner… und so' ]]
+eval $(envstore eval)
+test "$hello" = 'mÿde Rentner… und so'
 unset hello
-$envstore clear
+envstore clear
 
-if ((test_extended)) {
-	echo "# $envstore save (binary values)"
-	export noise=$'\xa0\xa5\x25\x01\x02\x77\xff\xf0'
-	$envstore save noise
-	pre_noise=$noise
-	unset noise
-	eval $($envstore eval)
-	[[ $noise == $pre_noise ]]
-	unset noise pre_noise
-	$envstore clear
+# former --extended tests
 
-	echo "# invalid invocations"
-	! $envstore save &> /dev/null
-	unset nonexistent
-	! $envstore save nonexistent &> /dev/null
-	! $envstore rm &> /dev/null
+#echo "# envstore save (binary values)"
+#export noise=$'\xa0\xa5\x25\x01\x02\x77\xff\xf0'
+#envstore save noise
+#pre_noise=$noise
+#unset noise
+#eval $(envstore eval)
+#test "$noise" = "$pre_noise"
+#unset noise pre_noise
+#envstore clear
 
-	echo "# other invocations"
-	$envstore list
-	$envstore eval
-	$envstore rm nonexistent
-	$envstore clear
+echo "# invalid invocations"
+! envstore save > /dev/null 2>&1
+unset nonexistent
+! envstore save nonexistent > /dev/null 2>&1
+! envstore rm > /dev/null 2>&1
 
-	echo "# envify"
-	$envstore save oaei lalala
-	[[ $(PATH=${envstore:h}:$PATH bin/envify sh test/envify) == lalala ]]
-	$envstore clear
-}
+echo "# other invocations"
+envstore list
+envstore eval
+envstore rm nonexistent
+envstore clear
 
-if ((test_security)) {
+echo "# envify"
+envstore save oaei lalala
+test "$(bin/envify sh test/envify)" = lalala
+envstore clear
+
+
+if [ "$test_security" = 1 ]; then
 	echo "# world-writable store file"
-	$envstore save fucked yes
+	envstore save fucked yes
 	chmod 777 $store_file
-	[[ $($envstore eval) != *fucked=yes* ]]
+	test "$(envstore eval)" != "export fucked='yes'"
 	rm $store_file
-	$envstore save fucked yes
-	cat <<- ente
-		Now, enter the following as root:
-		chown root $store_file
-	ente
-	echo -n "[press return when done] "
-	read
-	[[ $($envstore eval) != *fucked=yes* ]]
-	cat <<- ente
-		Looking good, you may remove the file now
-		rm $store_file
-	ente
-	echo -n "[press return when done] "
-	read
-}
 
-print -P '\n%F{green}Test passed%F{default}'
+	envstore save fucked yes
+	echo "Now, enter the following as root:"
+	echo "    chown root $store_file"
+	echo -n "[press return when done] "
+	read wayne
+	test "$(envstore eval)" != "export fucked='yes'"
+
+	echo "Looking good, you may remove the file now"
+	echo "    rm $store_file"
+	echo -n "[press return when done] "
+	read wayne
+fi
