@@ -98,12 +98,19 @@ static inline void print_escaped(char *name, char *content) {
 static void command_disp(char *file, int command) {
 	char vname[PARAM_LENGTH];
 	char vcontent[VALUE_LENGTH];
+	int read_items;
 	FILE *fp = store_open(file);
 
 	if (fp == NULL)
 		exit(EXIT_SUCCESS);
 
-	while (fscanf(fp, SCAN_FORMAT, vname, vcontent) != EOF) {
+	while ((read_items = fscanf(fp, SCAN_FORMAT, vname, vcontent)) != EOF) {
+
+		if (read_items == 0)
+			errx(EXIT_FAILURE, "Unable to read items, store file '%s' corrupt?", file);
+		else if (read_items == 1)
+			vcontent[0] = '\0';
+
 		if (command == CMD_LIST)
 			printf("%-15s = %s\n", vname, vcontent);
 		else
