@@ -1,3 +1,9 @@
+envstore 2.0.2 - Wed Dec 9 2009
+
+    * Rewrite test script in sh
+    * Fix a bug when outputting parameters with empty values
+      (envstore used to print random binary data after the value)
+
 envstore 2.0.1 - Wed Dec 2 2009
 
     * Remove Bloat[tm] from the source
