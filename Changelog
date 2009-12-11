@@ -1,3 +1,7 @@
+envstore 2.0.3 - Fri Dec 11 2009
+
+    * Fix a bug in the Makefile (the test script was still run with zsh)
+
 envstore 2.0.2 - Wed Dec 9 2009
 
     * Rewrite test script in sh
