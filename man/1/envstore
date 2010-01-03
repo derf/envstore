@@ -56,6 +56,13 @@ by default,
 .Sh LIMITATIONS
 Variable names or values must not contain null bytes or newlines.
 .Pp
+Due to limitations imposed by most shells, it is not possible to save
+parameters containing more than one consecutive whitespace.
+.Nm
+will save and display them correctly, but unless you do
+.Ev IFS
+trickery, your shell will not be able to load them.
+.Pp
 The current maximum length (in bytes) is 255 bytes for the variable name
 and 1023 bytes for its content.
 .Sh AUTHOR

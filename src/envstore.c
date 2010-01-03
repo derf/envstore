@@ -20,7 +20,7 @@
 
 #define PARAM_LENGTH 256
 #define VALUE_LENGTH 1024
-#define SCAN_FORMAT "%255s %1023[^\n]\n"
+#define SCAN_FORMAT "%255s%*1[ ]%1023[^\n]\n"
 
 static FILE * store_open(char *file) {
 	struct stat finfo;
@@ -108,13 +108,13 @@ static void command_disp(char *file, int command) {
 
 		if (read_items == 0)
 			errx(EXIT_FAILURE, "Unable to read items, store file '%s' corrupt?", file);
-		else if (read_items == 1)
-			vcontent[0] = '\0';
 
 		if (command == CMD_LIST)
 			printf("%-15s = %s\n", vname, vcontent);
 		else
 			print_escaped(vname, vcontent);
+		vname[0] = '\0';
+		vcontent[0] = '\0';
 	}
 	if (fclose(fp) != 0)
 		err(EXIT_FAILURE, "fclose %s", file);

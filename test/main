@@ -73,6 +73,18 @@ eval $(envstore eval)
 test "$hello" = 'your mom'
 unset hello
 
+echo "# envstore save (leading space in value)"
+envstore save hello ' world'
+eval $(envstore eval)
+test "$hello" = ' world'
+unset hello
+
+echo "# envstore save (trailing space in value)"
+envstore save hello 'world '
+eval $(envstore eval)
+test "$hello" = 'world '
+unset hello
+
 echo "# envstore save (overwrite)"
 envstore save hello world
 eval $(envstore eval)
