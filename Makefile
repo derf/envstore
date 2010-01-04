@@ -23,7 +23,7 @@ uninstall:
 	rm -f $(prefix)/share/man/man1/envstore.1
 
 test:
-	test/main --extended
+	test/main
 
 clean:
 	rm -f bin/envstore
