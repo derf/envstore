@@ -35,13 +35,13 @@ static FILE * store_open(char *file) {
 		return NULL;
 
 	if (fstat(fileno(fp), &finfo) != 0)
-		err(EXIT_FAILURE, "Unable to verify store file permissions (%s)", file);
+		err(EXIT_FAILURE, "%s: Unable to check file mode", file);
 
 	if (finfo.st_uid != self_uid)
-		errx(EXIT_FAILURE, "Store file '%s' is insecure (must be owned by you, not uid %d)", file, finfo.st_uid);
+		errx(EXIT_FAILURE, "%s: File is insecure (must be owned by you, not uid %d)", file, finfo.st_uid);
 
 	if ((finfo.st_mode & 077) > 0)
-		errx(EXIT_FAILURE, "Store file '%s' has insecure permissions %04o (recommended: 0600)", file, finfo.st_mode & 07777);
+		errx(EXIT_FAILURE, "%s: File is insecure (should have mode 0600, not %04o)", file, finfo.st_mode & 07777);
 
 	return fp;
 }
@@ -65,7 +65,7 @@ static FILE * store_open_new(char *file) {
 	fp = fopen(file, "w");
 
 	if (fp == NULL)
-		err(EXIT_FAILURE, "fopen %s", file);
+		err(EXIT_FAILURE, "%s: Unable to open", file);
 
 	return fp;
 }
@@ -107,7 +107,7 @@ static void command_disp(char *file, int command) {
 	while ((read_items = fscanf(fp, SCAN_FORMAT, vname, vcontent)) != EOF) {
 
 		if (read_items == 0)
-			errx(EXIT_FAILURE, "Unable to read items, store file '%s' corrupt?", file);
+			errx(EXIT_FAILURE, "%s: Cannot read items, file corrupt?", file);
 
 		if (command == CMD_LIST)
 			printf("%-15s = %s\n", vname, vcontent);
@@ -117,7 +117,7 @@ static void command_disp(char *file, int command) {
 		vcontent[0] = '\0';
 	}
 	if (fclose(fp) != 0)
-		err(EXIT_FAILURE, "fclose %s", file);
+		err(EXIT_FAILURE, "%s: Unable to close", file);
 }
 
 static void command_rm_save(char *old_file, char *param, char *value, int argc, int mode) {
@@ -132,10 +132,10 @@ static void command_rm_save(char *old_file, char *param, char *value, int argc, 
 		while (fscanf(old_fp, SCAN_FORMAT, curparam, curvalue) != EOF) {
 			if (strcmp(curparam, param) != 0)
 				if (fprintf(new_fp, "%s %s\n", curparam, curvalue) <= 0)
-					err(EXIT_FAILURE, "fprintf %s", new_file);
+					err(EXIT_FAILURE, "%s: Unable to write (fprintf)", new_file);
 		}
 		if (fclose(old_fp) != 0)
-			err(EXIT_FAILURE, "fclose %s", old_file);
+			err(EXIT_FAILURE, "%s: Unable to close", old_file);
 	}
 
 	if (mode == CMD_SAVE) {
@@ -151,14 +151,14 @@ static void command_rm_save(char *old_file, char *param, char *value, int argc, 
 			errx(EXIT_FAILURE, "parameter or value too long (see man envstore -> LIMITATIONS)");
 
 		if (fprintf(new_fp, "%s %s\n", param, newvalue) <= 0)
-			err(EXIT_FAILURE, "fprintf %s", new_file);
+			err(EXIT_FAILURE, "%s: Unable to write (fprintf)", new_file);
 	}
 
 	if (fclose(new_fp) != 0)
-		err(EXIT_FAILURE, "fclose %s", new_file);
+		err(EXIT_FAILURE, "%s: Unable to close", new_file);
 
 	if (rename(new_file, old_file) != 0)
-		err(EXIT_FAILURE, "Unable to rename '%s' to '%s'", new_file, old_file);
+		err(EXIT_FAILURE, ":%s: Unable to rename to %s", new_file, old_file);
 }
 
 
