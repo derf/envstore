@@ -158,7 +158,7 @@ static void command_rm_save(char *old_file, char *param, char *value, int argc, 
 		err(EXIT_FAILURE, "%s: Unable to close", new_file);
 
 	if (rename(new_file, old_file) != 0)
-		err(EXIT_FAILURE, ":%s: Unable to rename to %s", new_file, old_file);
+		err(EXIT_FAILURE, "%s: Unable to rename to %s", new_file, old_file);
 }
 
 
