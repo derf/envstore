@@ -1,3 +1,8 @@
+envstore 2.0.4 - Sat Jan 23 2010
+
+    * Preserve leading space in saved variables
+    * Improved some error messages
+
 envstore 2.0.3 - Fri Dec 11 2009
 
     * Fix a bug in the Makefile (the test script was still run with zsh)

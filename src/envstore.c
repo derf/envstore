@@ -1,5 +1,5 @@
 /*
- * Copyright © 2009 by Daniel Friesel <derf@derf.homelinux.org>
+ * Copyright © 2009,2010 by Daniel Friesel <derf@derf.homelinux.org>
  * License: WTFPL <http://sam.zoy.org/wtfpl>
  *
  * Function policy: Fail early (use err/errx if something goes wrong)
