@@ -20,10 +20,10 @@ echo "# make"
 make -s -B
 
 echo "# make install"
-make -s install prefix=$testdir
+make -s install DESTDIR=$testdir
 
 echo "# make uninstall"
-make -s uninstall prefix=$testdir
+make -s uninstall DESTDIR=$testdir
 
 rm -r $testdir
 

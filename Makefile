@@ -1,26 +1,35 @@
-CFLAGS = -Wall -Wextra -pedantic -O2
-prefix = /usr/local
+CFLAGS ?= -O2
+PREFIX ?= /usr/local
+
+CFLAGS += -Wall -Wextra -pedantic
+
+sysdir = ${DESTDIR}${PREFIX}
 
 all: bin/envstore
 
 bin/%: src/%.c
-	$(CC) $(CFLAGS) -o $@ $<
+	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $<
 
 install: bin/envstore
-	mkdir -p $(prefix)/bin $(prefix)/share/man/man1
-	cp bin/envstore $(prefix)/bin/envstore
-	cp bin/envify $(prefix)/bin/envify
-	cp man/1/envify $(prefix)/share/man/man1/envify.1
-	cp man/1/envstore $(prefix)/share/man/man1/envstore.1
-	chmod 755 $(prefix)/bin/envstore
-	chmod 755 $(prefix)/bin/envify
-	chmod 644 $(prefix)/share/man/man1/envify.1
-	chmod 644 $(prefix)/share/man/man1/envstore.1
+	@echo installing:
+	@echo 'envstore   to ${sysdir}/bin'
+	@echo 'envify     to ${sysdir}/bin'
+	@echo 'envstore.1 to ${sysdir}/share/man/man1'
+	@echo 'envify.1   to ${sysdir}/share/man/man1'
+	@mkdir -p ${sysdir}/bin ${sysdir}/share/man/man1
+	@cp bin/envstore ${sysdir}/bin/envstore
+	@cp bin/envify ${sysdir}/bin/envify
+	@cp man/1/envify ${sysdir}/share/man/man1/envify.1
+	@cp man/1/envstore ${sysdir}/share/man/man1/envstore.1
+	@chmod 755 ${sysdir}/bin/envstore
+	@chmod 755 ${sysdir}/bin/envify
+	@chmod 644 ${sysdir}/share/man/man1/envify.1
+	@chmod 644 ${sysdir}/share/man/man1/envstore.1
 
 uninstall:
-	rm -f $(prefix)/bin/envstore $(prefix)/bin/envify
-	rm -f $(prefix)/share/man/man1/envify.1
-	rm -f $(prefix)/share/man/man1/envstore.1
+	rm -f ${sysdir}/bin/envstore ${sysdir}/bin/envify
+	rm -f ${sysdir}/share/man/man1/envify.1
+	rm -f ${sysdir}/share/man/man1/envstore.1
 
 test:
 	test/main
