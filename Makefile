@@ -1,14 +1,14 @@
 CFLAGS ?= -O2
 PREFIX ?= /usr/local
 
+VERSION ?= 2.0.4-git
+
 CFLAGS += -Wall -Wextra -pedantic
 
 sysdir = ${DESTDIR}${PREFIX}
 
-all: bin/envstore
-
-bin/%: src/%.c
-	${CC} ${CFLAGS} ${LDFLAGS} -o $@ $<
+bin/envstore: src/envstore.c
+	${CC} -DVERSION=\"${VERSION}\" ${CFLAGS} ${LDFLAGS} -o $@ $<
 
 install: bin/envstore
 	@echo installing:

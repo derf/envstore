@@ -171,6 +171,34 @@ static inline void command_clear(char *store_file) {
 }
 
 
+static inline void print_usage() {
+	puts(
+		"Usage: envstore <command> [arguments]\n\n"
+		"Commands:\n"
+		"clear\n"
+		"\tForget all stored variables\n\n"
+		"eval\n"
+		"\tProduce shell code for evaluation to restore saved variables\n\n"
+		"list\n"
+		"\tList saved variables in a better readable format\n\n"
+		"save <variable> [value]\n"
+		"\tSave <variable> either with its current shell value or with [value]\n\n"
+		"rm <variable>\n"
+		"\tRemove <variable> from store\n\n"
+		"Commands may be abbreviated as their first character\n\n"
+		"Environment:\n"
+		"ENVSTORE_FILE - store file. Default: /tmp/envstore-EUID\n\n"
+		"Limitations:\n"
+		"Newlines are not supported.\n"
+		"Maximum lengths: 255 bytes for each <variable>, 1023 for its content.\n"
+	);
+}
+
+static inline void print_version() {
+	puts("envstore version " VERSION);
+}
+
+
 int main(int argc, char **argv) {
 	char *store_file;
 	uid_t my_uid = geteuid();
@@ -211,7 +239,12 @@ int main(int argc, char **argv) {
 			command_rm_save(store_file, argv[2], argv[3], argc, CMD_SAVE);
 			break;
 		default:
-			errx(EXIT_FAILURE, "Unknown action: %s", argv[1]);
+			if (!strcmp(argv[1], "--help") || !strcmp(argv[1], "-h"))
+				print_usage();
+			else if (!strcmp(argv[1], "--version") || !strcmp(argv[1], "-v"))
+				print_version();
+			else
+				errx(EXIT_FAILURE, "Unknown action: %s", argv[1]);
 			break;
 	}
 

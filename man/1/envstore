@@ -29,7 +29,8 @@ either with its current shell value or with
 .Ar value
 .It Cm rm Ar variable
 Remove
-.Ar variable from store
+.Ar variable
+from store
 .El
 .Pp
 Note: Only the first character of
@@ -46,6 +47,12 @@ for
 .Nm
 .Cm clear ,
 etc., are also valid.
+.Pp
+For convenience, the options
+.Cm --version
+and
+.Cm --help
+are also supported.
 .Sh ENVIRONMENT
 .Bl -tag -width "ENVSTORE_FILE"
 .It Ev ENVSTORE_FILE
