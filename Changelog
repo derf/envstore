@@ -1,3 +1,8 @@
+envstore 2.1 - Wed May 23 2010
+
+    * Fix space handling for envify arguments
+    * Add support for --help/--version
+
 envstore 2.0.4 - Sat Jan 23 2010
 
     * Preserve leading space in saved variables

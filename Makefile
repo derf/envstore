@@ -1,7 +1,7 @@
 CFLAGS ?= -O2
 PREFIX ?= /usr/local
 
-VERSION ?= 2.0.4-git
+VERSION ?= 2.1-git
 
 CFLAGS += -Wall -Wextra -pedantic
 
